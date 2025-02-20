@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Project</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; 
+        }
+
+        header {
+            background-color: #127520; 
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .left {
+            width: 60%;
+            box-sizing: border-box;
+        }
+
+        .right {
+            width: 35%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        section {
+            width: 100%;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        img {
+            width: 235px;
+            height: auto;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        a {
+            color: #1d3557; 
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #e63946; 
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #127520;
+            color: white;
+        }
+
+        .bottom {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            justify-content: center;
+            font-size: 1.2rem;
+            gap: 30px;
+        }
+
+        .bottom li {
+            background-color: #f1faee; 
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .bottom li:hover {
+            background-color: #1d3557; 
+            color: white;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Soccer Sphere</h1>
+    </header>
+
+    <div>
+        <div class="container">
+            <div class="left">
+                <section>
+                    <h2>Project Overview</h2>
+                    <p>Soccer Sphere is a distributed football league management system for campus tournaments. It includes four subsystems: Match Management, handling scheduling, results, and live updates; Financial Management, managing registration fees and reports; User Management, overseeing accounts and roles; and Team Management, organizing teams and statistics. Built with Spring Boot, React, and MySQL, it ensures scalable football event organization. It can greatly improve the efficiency of match organizers and reduce the possibility of errors.</p>
+                </section>
+    
+                <section>
+                    <h2>Project Information</h2>
+                    <ul>
+                        <li><strong>Commercial Title:</strong> Soccer Sphere</li>
+                        <li><strong>Academic Title:</strong> Spring-Boot Football League Management System</li>
+                        <li><strong>Technologies:</strong> SpringBoot, React, MySQL, git, Redis, MongoDB</li>
+                    </ul>
+                </section>        
+            </div>
+
+            <div class="right">
+                <img src="./photo.jpg" alt="Personal Image"> 
+                <section>
+                    <h2>Personal Information</h2>
+                    <ul>
+                        <li><strong>Name:</strong> Zhenyang Wan</li>
+                        <li><strong>Student Number:</strong> 20109227</li>
+                        <li><strong>Program:</strong> Bsc(Hons) Software Systems Practice</li>
+                        <li><strong>Supervisor:</strong> Aiman Khalil</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+
+        <section style="width: 80%; margin: 0 auto;">
+            <h2>Related Resources</h2>
+            <ul class="bottom">
+                <li><a href="https://github.com/BruceWan1021/FootballMatchSystem.git">Code Repository</a></li>
+                <li><a href="https://youtu.be/lBoced-zdWU" target="_blank">Demo</a></li>
+                <li><a href="" target="_blank">Poster</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2025 My Project</p>
+    </footer>
+</body>
+</html>
