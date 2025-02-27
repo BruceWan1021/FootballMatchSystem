@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Container, Paper, Typography, TextField, Button, Box } from "@mui/material";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,7 +21,8 @@ const LoginForm = () => {
       });
       const result = await response.text();
       if (response.ok) {
-        alert("登录成功：" + result);
+        alert("Login Successful:" + result);
+        navigate('/home');
     } else {
         alert("登录失败：" + result);
     }

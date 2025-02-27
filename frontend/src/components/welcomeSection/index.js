@@ -5,8 +5,10 @@ const WelcomeSection = () => {
   return (
     <Paper
       sx={{
+        height: 300,
+        mb: 4,
         padding: 4,
-        backgroundImage: 'url(/images/welcome-banner.jpg)', // 你可以替换为合适的欢迎图片
+        backgroundImage: 'url("/images/welcomSection.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         color: 'white',
@@ -14,10 +16,10 @@ const WelcomeSection = () => {
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h3" fontWeight="bold" sx={{ mb: 2 }}>
+        <Typography variant="h3" fontWeight="bold" sx={{ mb: 8 }}>
           Welcome to SoccerSphere!
         </Typography>
-        <Typography variant="h6" sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 8 }}>
           Join the action, manage your team, and track your performance in exciting football leagues.
         </Typography>
         <Button variant="contained" color="primary" size="large" sx={{ fontSize: 16 }}>

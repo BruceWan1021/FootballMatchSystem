@@ -5,7 +5,7 @@ const MatchCard = ({ match }) => {
   return (
     <Paper
       sx={{
-        width: 200,  // 卡片宽度
+        width: 190, 
         padding: 2,
         borderRadius: 2,
         boxShadow: 3,
@@ -16,11 +16,10 @@ const MatchCard = ({ match }) => {
         }
       }}
     >
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>
+      <Typography variant="caption" sx={{ mb: 1 }}>
         {match.title}
       </Typography>
 
-      {/* 队伍信息 */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Avatar sx={{ bgcolor: 'green', width: 30, height: 30 }}>A</Avatar>
         <Typography variant="body1">{match.teamA}</Typography>
@@ -30,12 +29,8 @@ const MatchCard = ({ match }) => {
         <Typography variant="body1">{match.teamB}</Typography>
       </Box>
 
-      {/* 时间和地点 */}
-      <Typography variant="body2" sx={{ mt: 1 }}>
+      <Typography variant="overline" sx={{ mt: 1 }}>
         {match.date} | {match.time}
-      </Typography>
-      <Typography variant="body2" sx={{ mt: 1 }}>
-        {match.stadium}
       </Typography>
     </Paper>
   );
@@ -55,30 +50,29 @@ const UpcomingMatches = () => {
   ];
 
   const [scrollIndex, setScrollIndex] = useState(0);
-  const scrollAmount = 200; // 每次滚动的距离
+  const scrollAmount = 200; 
 
-  // 向左滚动
+
   const handleScrollLeft = () => {
     if (scrollIndex > 0) {
       setScrollIndex(scrollIndex - 1);
     }
   };
 
-  // 向右滚动
   const handleScrollRight = () => {
-    if (scrollIndex < matches.length - 3) { // 确保不超过范围
+    if (scrollIndex < matches.length - 3) {
       setScrollIndex(scrollIndex + 1);
     }
   };
 
   return (
-    <Box sx={{ mb: 4 }}>
+    <Box sx={{ mb: 4}}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Button
           onClick={handleScrollLeft}
           variant="outlined"
           color="primary"
-          disabled={scrollIndex === 0}  // 如果已经到最左边，禁用按钮
+          disabled={scrollIndex === 0}  
         >
           &lt; Prev
         </Button>
@@ -87,7 +81,7 @@ const UpcomingMatches = () => {
             display: 'flex',
             transform: `translateX(-${scrollIndex * scrollAmount}px)`,
             transition: 'transform 0.3s ease',
-            flexShrink: 0, // 防止元素收缩
+            flexShrink: 0, 
           }}>
             {matches.map((match, index) => (
               <Box key={index} sx={{ marginRight: '16px' }}>
@@ -100,7 +94,7 @@ const UpcomingMatches = () => {
           onClick={handleScrollRight}
           variant="outlined"
           color="primary"
-          disabled={scrollIndex >= matches.length - 3} // 如果已经到最右边，禁用按钮
+          disabled={scrollIndex >= matches.length - 3} 
         >
           Next &gt;
         </Button>
