@@ -2,7 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ isAuthenticated }) => {
   return (
     <AppBar position="sticky" sx={{ backgroundColor: '#004d40' }}>
       <Container maxWidth="lg">
@@ -23,7 +23,7 @@ const Navbar = () => {
               Leagues
             </Button>
             <Button color="inherit" component={Link} to="/teams">
-              My Teams
+              Team
             </Button>
             <Button color="inherit" component={Link} to="/news">
               News
@@ -37,11 +37,11 @@ const Navbar = () => {
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-            <Button color="inherit" component={Link} to="/profile">
+            {isAuthenticated?<Button color="inherit" component={Link} to="/profile">
               Profile
-            </Button>
-            <Button color="inherit" component={Link} to="/logout">
-              Logout
+            </Button>:""}
+            <Button color="inherit" component={Link} to={isAuthenticated?"/logout":"/login"}>
+              {isAuthenticated?"logout":"login"}
             </Button>
           </Box>
         </Toolbar>

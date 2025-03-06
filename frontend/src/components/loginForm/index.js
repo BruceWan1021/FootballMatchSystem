@@ -19,9 +19,12 @@ const LoginForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const result = await response.text();
+      const result = await response.json();
       if (response.ok) {
-        alert("Login Successful:" + result);
+        const token  = result.token;
+
+        sessionStorage.setItem('authToken', token);
+        alert("Login Successful" );
         navigate('/home');
     } else {
         alert("登录失败：" + result);

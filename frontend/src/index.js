@@ -1,43 +1,45 @@
-import React,{ useState, useEffect }  from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Navigate, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Navbar from "./components/navBar";
-import LoginPage  from "./pages/loginPage"
+import LoginPage from "./pages/loginPage";
 import RegisterPage from "./pages/registerPage";
 import HomePage from "./pages/homePage";
 
 const App = () => {
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 360000,
         refetchInterval: 360000,
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
       },
     },
   });
-  
 
-  const [sessionId, setSessionId] = useState(() => sessionStorage.getItem('sessionId') || '');
-  const [isAuthenticated, setIsAuthenticated] = useState(!!sessionId);
+  // Use sessionStorage to get the 'authToken' if available
+  const [sessionId, setSessionId] = useState(() => sessionStorage.getItem('authToken') || '');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!sessionId); // Check if sessionId exists
 
+  // Update isAuthenticated when sessionId changes
   useEffect(() => {
     if (sessionId) {
-      setIsAuthenticated(true);
+      setIsAuthenticated(true);  // If sessionId exists, set as authenticated
+    } else {
+      setIsAuthenticated(false);  // Otherwise, set as unauthenticated
     }
   }, [sessionId]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Navbar/>
+        <Navbar isAuthenticated={isAuthenticated} />
         <Routes>
-          <Route path="/login" element={ <LoginPage /> } />
-          <Route path="/register" element={ <RegisterPage /> }/>
-          <Route path="/home" element={ <HomePage />}/>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/" element={<HomePage />} />
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
@@ -45,6 +47,5 @@ const App = () => {
   );
 };
 
-
-const rootElement = createRoot( document.getElementById("root") )
+const rootElement = createRoot(document.getElementById("root"));
 rootElement.render(<App />);
