@@ -27,7 +27,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/send-verification",
                                 "/api/auth/verify-email",
-                                "/api/matches/scheduled"
+                                "/api/matches/scheduled",
+                                "/api/tournaments/scheduled"
                         ).permitAll() // 允许访问
                         .anyRequest().authenticated() // 其他请求需要身份验证
                 );

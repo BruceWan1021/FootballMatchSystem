@@ -23,7 +23,7 @@ const UpcomingLeagues = () => {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-        ⚽ Upcoming Leagues
+        ⚽ Leagues
       </Typography>
       <Grid container spacing={4}>
         {upcomingLeagues.map((league, index) => (
