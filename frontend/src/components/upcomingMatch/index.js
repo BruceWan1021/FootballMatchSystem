@@ -1,10 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Paper, Typography, Box, Button, Avatar } from '@mui/material';
 
-const MatchCard = ({ match }) => {
-  if (!match || !match.teamA || !match.teamB) {
-    return null; // 避免渲染错误
+const getStatusStyle = (status) => {
+  const normalized = (status || '').toUpperCase();
+  switch (normalized) {
+    case 'IN_PROGRESS':
+      return {
+        label: 'Live',
+        style: { color: '#f44336' }
+      };
+    case 'COMPLETED':
+      return {
+        label: 'Finishd',
+        style: { color: '#9e9e9e' }
+      };
+    default:
+      return {
+        label: 'Upcoming',
+        style: { color: '#4caf50' }
+      };
   }
+};
+
+
+const MatchCard = ({ match }) => {
+  if (!match || !match.teamA || !match.teamB) return null;
+
+  const { label, style } = getStatusStyle(match.status);
 
   return (
     <Paper
@@ -13,6 +35,7 @@ const MatchCard = ({ match }) => {
         padding: 2,
         borderRadius: 2,
         boxShadow: 3,
+        position: 'relative',
         transition: 'transform 0.3s, box-shadow 0.3s',
         '&:hover': {
           transform: 'scale(1.05)',
@@ -20,6 +43,23 @@ const MatchCard = ({ match }) => {
         }
       }}
     >
+      {/* 状态标签 */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          px: 1,
+          py: 0.3,
+          borderRadius: 1,
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          ...style
+        }}
+      >
+        {label}
+      </Box>
+
       <Typography variant="caption" sx={{ mb: 1 }}>
         {match.title}
       </Typography>
@@ -44,48 +84,59 @@ const MatchCard = ({ match }) => {
   );
 };
 
+
 const UpcomingMatches = () => {
   const [matches, setMatches] = useState([]);
   const [scrollIndex, setScrollIndex] = useState(0);
-  const scrollAmount = 200;
+  const scrollAmount = 206;
+  const visibleCount = 3;
+  const autoScrollRef = useRef(null);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/matches/scheduled')
+    fetch('http://localhost:8080/api/matches/all')
       .then(response => response.json())
       .then(data => {
         const formattedMatches = data.map(match => ({
           title: match.tournament?.name || "Unknown Tournament",
           teamA: match.team1?.name || "Unknown Team",
           teamB: match.team2?.name || "Unknown Team",
-          date: match.matchDate.split('T')[0], // 提取日期部分
-          time: match.matchDate.split('T')[1].slice(0, 5), // 提取时间（去掉秒）
+          date: match.matchDate.split('T')[0],
+          time: match.matchDate.split('T')[1].slice(0, 5),
+          status: match.status || 'upcoming'
         }));
         setMatches(formattedMatches);
       })
       .catch(error => console.error('Error fetching matches:', error));
   }, []);
 
+  useEffect(() => {
+    autoScrollRef.current = setInterval(() => {
+      setScrollIndex(prev =>
+        matches.length === 0
+          ? 0
+          : (prev + 1) % (matches.length > visibleCount ? matches.length : 1)
+      );
+    }, 2000); // 每 2 秒滚动一次
+
+    return () => clearInterval(autoScrollRef.current);
+  }, [matches]);
+
   const handleScrollLeft = () => {
-    if (scrollIndex > 0) {
-      setScrollIndex(scrollIndex - 1);
-    }
+    setScrollIndex(prev =>
+      prev === 0 ? Math.max(matches.length - visibleCount, 0) : prev - 1
+    );
   };
 
   const handleScrollRight = () => {
-    if (scrollIndex < matches.length - 3) {
-      setScrollIndex(scrollIndex + 1);
-    }
+    setScrollIndex(prev =>
+      (prev + 1) % (matches.length > visibleCount ? matches.length : 1)
+    );
   };
 
   return (
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Button
-          onClick={handleScrollLeft}
-          variant="outlined"
-          color="primary"
-          disabled={scrollIndex === 0}
-        >
+        <Button onClick={handleScrollLeft} variant="outlined" color="primary">
           &lt; Prev
         </Button>
         <Box sx={{ display: 'flex', overflow: 'hidden', width: '100%' }}>
@@ -93,7 +144,7 @@ const UpcomingMatches = () => {
             sx={{
               display: 'flex',
               transform: `translateX(-${scrollIndex * scrollAmount}px)`,
-              transition: 'transform 0.3s ease',
+              transition: 'transform 0.5s ease',
               flexShrink: 0,
             }}
           >
@@ -104,12 +155,7 @@ const UpcomingMatches = () => {
             ))}
           </Box>
         </Box>
-        <Button
-          onClick={handleScrollRight}
-          variant="outlined"
-          color="primary"
-          disabled={scrollIndex >= matches.length - 3}
-        >
+        <Button onClick={handleScrollRight} variant="outlined" color="primary">
           Next &gt;
         </Button>
       </Box>

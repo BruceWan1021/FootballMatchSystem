@@ -19,9 +19,14 @@ public class MatchService {
         return matchRepository.findByStatus(status);
     }
 
+    //获取所有比赛
+    public List<Match> getMatches(){
+        return matchRepository.findAll();
+    }
+
     //获取所有已安排的比赛
-    public List<Match> getScheduledMatches(){
-        return getMatchesByStatus(MatchStatus.SCHEDULED);
+    public List<Match> getScheduledMatches() {
+        return matchRepository.findByStatus(MatchStatus.SCHEDULED);
     }
 
     //更新比赛状态为“进行中”
@@ -43,6 +48,7 @@ public class MatchService {
         match.setStatus(MatchStatus.SCHEDULED);
         return matchRepository.save(match);
     }
+
 
 
 }

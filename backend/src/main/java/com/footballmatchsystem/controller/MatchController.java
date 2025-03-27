@@ -15,6 +15,11 @@ public class MatchController {
     @Autowired
     private MatchService matchService;
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Match>> getMatches(){
+        List<Match> matches = matchService.getMatches();
+        return ResponseEntity.ok(matches);
+    }
     @GetMapping("/scheduled")
     public ResponseEntity<List<Match>> getScheduleMatches(){
         List<Match> scheduledMatches = matchService.getScheduledMatches();
