@@ -10,7 +10,7 @@ const UpcomingLeagues = () => {
       .then(data => {
         const formattedTournaments = data.map(tournament => ({
           title: tournament.name || "Unknown Name",
-          image: tournament.image || "https://via.placeholder.com/345x140", // 添加默认图片
+          image: tournament.image || "/images/footballClub.png", 
         }));
         setTournaments(formattedTournaments);
       })
@@ -23,7 +23,7 @@ const UpcomingLeagues = () => {
         ⚽ Top 3 Leagues
       </Typography>
       <Grid container spacing={4}>
-        {tournaments.slice(0, 3).map((league, index) => ( // 只取前三个
+        {tournaments.slice(0, 3).map((league, index) => ( 
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card sx={{ maxWidth: 345 }}>
               <CardMedia

@@ -1,163 +1,212 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Paper, Typography, Box, Button, Avatar } from '@mui/material';
+import {
+  Box, Typography, Paper, IconButton, Avatar, CircularProgress, Alert, useTheme, useMediaQuery, Chip
+} from '@mui/material';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
-const getStatusStyle = (status) => {
-  const normalized = (status || '').toUpperCase();
-  switch (normalized) {
-    case 'IN_PROGRESS':
-      return {
-        label: 'Live',
-        style: { color: '#f44336' }
-      };
-    case 'COMPLETED':
-      return {
-        label: 'Finishd',
-        style: { color: '#9e9e9e' }
-      };
-    default:
-      return {
-        label: 'Upcoming',
-        style: { color: '#4caf50' }
-      };
-  }
+const CARD_WIDTH = 260;
+
+const statusColors = {
+  SCHEDULED: { bg: '#c8e6c9', color: '#2e7d32' },
+  IN_PROGRESS: { bg: '#ffecb3', color: '#f57c00' },
+  COMPLETED: { bg: '#e0e0e0', color: '#555' }
 };
 
+const displayStatusMap = {
+  SCHEDULED: 'SCHEDULED',
+  IN_PROGRESS: 'LIVE',
+  COMPLETED: 'FINISHED'
+};
 
 const MatchCard = ({ match }) => {
-  if (!match || !match.teamA || !match.teamB) return null;
-
-  const { label, style } = getStatusStyle(match.status);
+  const statusStyle = statusColors[match.status] || statusColors['SCHEDULED'];
 
   return (
     <Paper
+      elevation={3}
       sx={{
-        width: 190,
-        padding: 2,
-        borderRadius: 2,
-        boxShadow: 3,
+        minWidth: CARD_WIDTH,
+        p: 2,
+        mr: 2,
+        borderRadius: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
         position: 'relative',
-        transition: 'transform 0.3s, box-shadow 0.3s',
+        transition: 'transform 0.3s ease',
         '&:hover': {
-          transform: 'scale(1.05)',
-          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+          transform: 'translateY(-4px)',
+          boxShadow: 6
         }
       }}
     >
-      {/* 状态标签 */}
+      <Box sx={{ mb: 1 }}>
+        <Chip
+          label={match.displayStatus}
+          size="small"
+          sx={{
+            fontSize: '0.7rem',
+            backgroundColor: statusStyle.bg,
+            color: statusStyle.color,
+            mb: 1,
+            height: 24,
+            fontWeight: 'bold',
+            borderRadius: '6px',
+            alignSelf: 'flex-start'
+          }}
+        />
+        <Typography variant="subtitle2" fontWeight="bold" noWrap>
+          {match.title}
+        </Typography>
+      </Box>
+
+      <Box>
+        {[match.teamA, match.teamB].map((team, idx) => (
+          <Box key={idx} sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
+            <Avatar sx={{
+              width: 28, height: 28, mr: 1,
+              bgcolor: idx === 0 ? 'primary.main' : 'secondary.main'
+            }}>
+              {team.charAt(0)}
+            </Avatar>
+            <Typography variant="body2" fontWeight={500} noWrap>{team}</Typography>
+          </Box>
+        ))}
+      </Box>
+
       <Box
         sx={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          px: 1,
-          py: 0.3,
+          backgroundColor: 'grey.100',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           borderRadius: 1,
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          ...style
+          px: 1,
+          py: 0.5,
+          mt: 2
         }}
       >
-        {label}
+        <Typography variant="caption" fontWeight="bold">{match.date}</Typography>
+        <Typography variant="caption" fontWeight="bold">{match.time}</Typography>
       </Box>
-
-      <Typography variant="caption" sx={{ mb: 1 }}>
-        {match.title}
-      </Typography>
-
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Avatar sx={{ bgcolor: 'green', width: 30, height: 30 }}>
-          {match.teamA.charAt(0)}
-        </Avatar>
-        <Typography variant="body1">{match.teamA}</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-        <Avatar sx={{ bgcolor: 'red', width: 30, height: 30 }}>
-          {match.teamB.charAt(0)}
-        </Avatar>
-        <Typography variant="body1">{match.teamB}</Typography>
-      </Box>
-
-      <Typography variant="overline" sx={{ mt: 1 }}>
-        {match.date} | {match.time}
-      </Typography>
     </Paper>
   );
 };
 
-
 const UpcomingMatches = () => {
-  const [matches, setMatches] = useState([]);
   const [scrollIndex, setScrollIndex] = useState(0);
-  const scrollAmount = 206;
-  const visibleCount = 3;
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const cardsToShow = isMobile ? 1 : 4;
   const autoScrollRef = useRef(null);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/matches/all')
-      .then(response => response.json())
-      .then(data => {
-        const formattedMatches = data.map(match => ({
-          title: match.tournament?.name || "Unknown Tournament",
-          teamA: match.team1?.name || "Unknown Team",
-          teamB: match.team2?.name || "Unknown Team",
-          date: match.matchDate.split('T')[0],
-          time: match.matchDate.split('T')[1].slice(0, 5),
-          status: match.status || 'upcoming'
-        }));
-        setMatches(formattedMatches);
-      })
-      .catch(error => console.error('Error fetching matches:', error));
+    const fetchMatches = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:8080/api/matches/all');
+        if (!response.ok) throw new Error('Failed to fetch matches');
+        const data = await response.json();
+
+        const formatted = data.map(match => {
+          const status = match.status || 'SCHEDULED';
+          return {
+            title: match.tournament?.name || 'Unknown League',
+            teamA: match.team1?.name || 'Team A',
+            teamB: match.team2?.name || 'Team B',
+            date: new Date(match.matchDate).toLocaleDateString('en-US', {
+              month: 'short',
+              day: '2-digit'
+            }),
+            time: new Date(match.matchDate).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }),
+            status,
+            displayStatus: displayStatusMap[status] || 'SCHEDULED'
+          };
+        });
+
+        setMatches(formatted);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchMatches();
   }, []);
 
   useEffect(() => {
     autoScrollRef.current = setInterval(() => {
-      setScrollIndex(prev =>
-        matches.length === 0
-          ? 0
-          : (prev + 1) % (matches.length > visibleCount ? matches.length : 1)
-      );
-    }, 2000); // 每 2 秒滚动一次
+      setScrollIndex(prev => {
+        const maxIndex = Math.max(matches.length - cardsToShow, 0);
+        return prev >= maxIndex ? 0 : prev + 1;
+      });
+    }, 3000);
 
     return () => clearInterval(autoScrollRef.current);
-  }, [matches]);
+  }, [matches, cardsToShow]);
 
-  const handleScrollLeft = () => {
-    setScrollIndex(prev =>
-      prev === 0 ? Math.max(matches.length - visibleCount, 0) : prev - 1
-    );
+  const handleScroll = (dir) => {
+    if (dir === 'left') {
+      setScrollIndex(prev => Math.max(prev - 1, 0));
+    } else {
+      setScrollIndex(prev => {
+        const maxIndex = Math.max(matches.length - cardsToShow, 0);
+        return prev >= maxIndex ? 0 : prev + 1;
+      });
+    }
   };
 
-  const handleScrollRight = () => {
-    setScrollIndex(prev =>
-      (prev + 1) % (matches.length > visibleCount ? matches.length : 1)
-    );
-  };
+  if (loading) {
+    return <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>;
+  }
+
+  if (error) {
+    return <Alert severity="error" sx={{ my: 2 }}>Failed to load matches: {error}</Alert>;
+  }
+
+  if (matches.length === 0) {
+    return <Box sx={{ textAlign: 'center', py: 4 }}><Typography>No upcoming matches</Typography></Box>;
+  }
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Button onClick={handleScrollLeft} variant="outlined" color="primary">
-          &lt; Prev
-        </Button>
-        <Box sx={{ display: 'flex', overflow: 'hidden', width: '100%' }}>
+    <Box sx={{ position: 'relative', py: 2, px: 2 }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+        Upcoming Matches
+      </Typography>
+
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <IconButton onClick={() => handleScroll('left')} disabled={scrollIndex === 0}>
+          <ChevronLeft />
+        </IconButton>
+
+        <Box sx={{ overflow: 'hidden', width: '100%' }}>
           <Box
             sx={{
               display: 'flex',
-              transform: `translateX(-${scrollIndex * scrollAmount}px)`,
               transition: 'transform 0.5s ease',
-              flexShrink: 0,
+              transform: `translateX(-${scrollIndex * (CARD_WIDTH + 16)}px)`
             }}
           >
             {matches.map((match, index) => (
-              <Box key={index} sx={{ marginRight: '16px' }}>
-                <MatchCard match={match} />
-              </Box>
+              <MatchCard key={index} match={match} />
             ))}
           </Box>
         </Box>
-        <Button onClick={handleScrollRight} variant="outlined" color="primary">
-          Next &gt;
-        </Button>
+
+        <IconButton
+          onClick={() => handleScroll('right')}
+          disabled={scrollIndex >= matches.length - cardsToShow}
+        >
+          <ChevronRight />
+        </IconButton>
       </Box>
     </Box>
   );

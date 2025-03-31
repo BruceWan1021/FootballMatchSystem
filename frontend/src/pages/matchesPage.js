@@ -1,68 +1,147 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Grid, Card, CardContent, Avatar, Chip } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Chip,
+  CircularProgress,
+} from "@mui/material";
+
+const statusColor = {
+  UPCOMING: "info",
+  LIVE: "warning",
+  COMPLETED: "success",
+};
 
 const MatchesPage = () => {
   const [matches, setMatches] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/matches')
-      .then(response => response.json())
-      .then(data => {
-        const formattedMatches = data.map(match => ({
-          id: match.id,
-          tournament: match.tournament?.name || "Unknown League",
-          teamA: match.team1?.name || "Unknown Team",
-          teamB: match.team2?.name || "Unknown Team",
-          date: match.matchDate.split('T')[0], // 提取日期
-          time: match.matchDate.split('T')[1].slice(0, 5), // 提取时间
-          status: match.status || "Scheduled"
-        }));
-        setMatches(formattedMatches);
-      })
-      .catch(error => console.error('Error fetching matches:', error));
+    fetch("http://localhost:8080/api/matches/all")
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((match) => {
+          const rawStatus = match.status?.toUpperCase() || "SCHEDULED";
+          let convertedStatus = rawStatus;
+          if (rawStatus === "SCHEDULED") convertedStatus = "UPCOMING";
+          if (rawStatus === "IN_PROGRESS") convertedStatus = "LIVE";
+
+          return {
+            id: match.id,
+            title: match.tournament?.name || "Unknown Tournament",
+            teamA: match.team1?.name || "Team A",
+            teamB: match.team2?.name || "Team B",
+            date: match.matchDate?.split("T")[0] || "-",
+            time: match.matchDate?.split("T")[1]?.slice(0, 5) || "-",
+            status: convertedStatus,
+            score: match.score || "-",
+          };
+        });
+        setMatches(formatted);
+        setFiltered(formatted);
+        setLoading(false);
+      });
   }, []);
 
+  useEffect(() => {
+    let temp = [...matches];
+    if (statusFilter !== "ALL") {
+      temp = temp.filter((m) => m.status === statusFilter);
+    }
+    if (search) {
+      temp = temp.filter(
+        (m) =>
+          m.teamA.toLowerCase().includes(search.toLowerCase()) ||
+          m.teamB.toLowerCase().includes(search.toLowerCase()) ||
+          m.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    setFiltered(temp);
+  }, [search, statusFilter, matches]);
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
-        ⚽ Upcoming Matches
+    <Container maxWidth="lg" sx={{ mt: 6, mb: 6 }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Matches
       </Typography>
-      <Grid container spacing={3}>
-        {matches.map((match) => (
-          <Grid item xs={12} sm={6} md={4} key={match.id}>
-            <Card sx={{ p: 2, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  {match.tournament}
-                </Typography>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar sx={{ bgcolor: 'green', mr: 1 }}>{match.teamA.charAt(0)}</Avatar>
-                    <Typography variant="body1">{match.teamA}</Typography>
-                  </Box>
-                  <Typography variant="h6">vs</Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body1">{match.teamB}</Typography>
-                    <Avatar sx={{ bgcolor: 'red', ml: 1 }}>{match.teamB.charAt(0)}</Avatar>
-                  </Box>
-                </Box>
-
-                <Typography variant="subtitle2" color="textSecondary">
-                  📅 {match.date} | ⏰ {match.time}
-                </Typography>
-
-                <Chip
-                  label={match.status}
-                  color={match.status === "Scheduled" ? "primary" : "secondary"}
-                  sx={{ mt: 2 }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+      {/* Filters */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={4}>
+          <TextField
+            fullWidth
+            label="Search by team or league"
+            variant="outlined"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <FormControl fullWidth>
+            <InputLabel>Status</InputLabel>
+            <Select
+              label="Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="UPCOMING">Upcoming</MenuItem>
+              <MenuItem value="LIVE">Live</MenuItem>
+              <MenuItem value="COMPLETED">Completed</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
-    </Box>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : filtered.length === 0 ? (
+        <Typography>No matches found.</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {filtered.map((match) => (
+            <Grid item xs={12} sm={6} md={4} key={match.id}>
+              <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                  <Typography variant="subtitle2" fontWeight="bold">
+                    {match.title}
+                  </Typography>
+                  <Chip
+                    size="small"
+                    label={match.status}
+                    color={statusColor[match.status] || "default"}
+                  />
+                </Box>
+                <Typography variant="body1" fontWeight="bold">
+                  {match.teamA} vs {match.teamB}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  📅 {match.date} ⏰ {match.time}
+                </Typography>
+                {match.status === "COMPLETED" && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Final Score: <strong>{match.score}</strong>
+                  </Typography>
+                )}
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Container>
   );
 };
 

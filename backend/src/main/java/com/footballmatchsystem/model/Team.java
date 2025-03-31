@@ -16,14 +16,16 @@ public class Team {
     @Column(nullable = false)
     private String name;
 
+    // ✅ 新增字段：队徽 URL
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 多对多关系：一个团队可以有多个用户
     @ManyToMany(mappedBy = "responsibleTeams")
     private Set<User> responsibleUsers;
 
-    // 多对多关系：一个团队可以参加多个比赛
     @ManyToMany
     @JoinTable(
             name = "team_tournament",
@@ -46,6 +48,14 @@ public class Team {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 
     public Set<User> getResponsibleUsers() {

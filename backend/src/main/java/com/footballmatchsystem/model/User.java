@@ -1,7 +1,6 @@
 package com.footballmatchsystem.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -22,14 +21,15 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    // 创建时间和更新时间
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 多对多关系：用户负责多个团队
     @ManyToMany
     @JoinTable(
             name = "user_team_responsibility",
@@ -37,7 +37,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "team_id"))
     private Set<Team> responsibleTeams;
 
-    // 多对多关系：用户参与多个比赛
     @ManyToMany
     @JoinTable(
             name = "user_tournament",
@@ -45,16 +44,14 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "tournament_id"))
     private Set<Tournament> tournaments;
 
-    // Constructor without createdAt and updatedAt fields
     public User() {}
 
-    // Constructor including all fields, excluding createdAt and updatedAt
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.createdAt = LocalDateTime.now();  // Manually set createdAt
-        this.updatedAt = LocalDateTime.now();  // Set updatedAt to current time initially
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -90,6 +87,14 @@ public class User {
         this.email = email;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -122,7 +127,6 @@ public class User {
         this.tournaments = tournaments;
     }
 
-    // JPA PrePersist and PreUpdate for createdAt and updatedAt
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

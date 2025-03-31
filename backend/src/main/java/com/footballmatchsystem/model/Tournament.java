@@ -16,14 +16,15 @@ public class Tournament {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "poster_url")
+    private String posterUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 多对多关系：一个比赛可以有多个用户（裁判等）
     @ManyToMany(mappedBy = "tournaments")
     private Set<User> participants;
 
-    // 多对多关系：一个比赛可以有多个团队
     @ManyToMany(mappedBy = "tournaments")
     private Set<Team> teams;
 
@@ -42,6 +43,14 @@ public class Tournament {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
     public Set<User> getParticipants() {
