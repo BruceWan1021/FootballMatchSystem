@@ -72,7 +72,7 @@ const CreateLeaguePage = () => {
             Create New League
           </Typography>
         </Box>
-        
+
         <Divider sx={{ mb: 4 }} />
 
         <Box component="form" onSubmit={handleSubmit}>
@@ -143,8 +143,8 @@ const CreateLeaguePage = () => {
             {/* Logo Upload */}
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                <Avatar 
-                  src={logoPreview} 
+                <Avatar
+                  src={logoPreview}
                   sx={{ width: 80, height: 80, bgcolor: 'grey.200' }}
                   variant="rounded"
                 >

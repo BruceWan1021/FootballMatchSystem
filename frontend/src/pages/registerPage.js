@@ -3,7 +3,7 @@ import RegisterForm from "../components/registerForm";
 import EmailVerificationForm from "../components/emailVerifyForm";
 
 const RegisterPage = () => {
-  const [step, setStep] = useState(1); 
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
 
   return (

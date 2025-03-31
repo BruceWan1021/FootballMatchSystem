@@ -24,25 +24,25 @@ const WelcomeSection = () => {
           Join the action, manage your team, and track your performance in exciting football leagues.
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            size="large" 
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
             sx={{ fontSize: 16 }}
-            component={Link} 
+            component={Link}
             to="/create-team">
             Create Team
           </Button>
-          <Button 
-            variant="outlined" 
-            color="primary" 
-            size="large" 
-            sx={{ 
-              fontSize: 16, 
-              color: 'white', 
-              borderColor: 'white' 
-              }}
-              component={Link}
+          <Button
+            variant="outlined"
+            color="primary"
+            size="large"
+            sx={{
+              fontSize: 16,
+              color: 'white',
+              borderColor: 'white'
+            }}
+            component={Link}
             to="/create-league">
             Create League
           </Button>
