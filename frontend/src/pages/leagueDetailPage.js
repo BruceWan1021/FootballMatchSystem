@@ -25,8 +25,14 @@ for (let i = 0; i < teamNames.length; i++) {
             id: matchId++,
             teamA: teamNames[i],
             teamB: teamNames[j],
+            teamALogo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(teamNames[i])}`,
+            teamBLogo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(teamNames[j])}`,
             date: `2025-04-${(matchId % 30 + 1).toString().padStart(2, "0")}`,
-            status: matchId % 3 === 0 ? "Completed" : matchId % 3 === 1 ? "In Progress" : "Scheduled"
+            time: "15:00",
+            location: "Main Stadium",
+            tournament: "Spring League",
+            status: matchId % 3 === 0 ? "Completed" : matchId % 3 === 1 ? "IN_PROGRESS" : "Scheduled",
+            score: matchId % 3 === 0 ? `${Math.floor(Math.random()*5)} - ${Math.floor(Math.random()*5)}` : undefined
         });
     }
 }

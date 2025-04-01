@@ -25,7 +25,7 @@ const LoginForm = () => {
 
         sessionStorage.setItem('authToken', token);
         alert("Login Successful" );
-        navigate('/home');
+        navigate('/');
     } else {
         alert("登录失败：" + result);
     }

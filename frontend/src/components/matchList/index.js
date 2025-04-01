@@ -12,7 +12,8 @@ import {
   Typography,
   Paper,
   useTheme,
-  Stack
+  Stack,
+  Badge
 } from "@mui/material";
 import {
   SportsSoccer as SoccerIcon,
@@ -21,8 +22,26 @@ import {
   LocationOn as LocationIcon,
   EmojiEvents as TournamentIcon,
   CheckCircle as CompletedIcon,
-  Pending as PendingIcon
+  Pending as PendingIcon,
+  Whatshot as LiveIcon,
+  AccessTime as ScheduledIcon
 } from "@mui/icons-material";
+
+const getStatusConfig = (status) => {
+  const normalized = (status || "").toLowerCase();
+  const configs = {
+    completed: {
+      icon: <CompletedIcon fontSize="small" />, color: "success", label: "Completed"
+    },
+    inprogress: {
+      icon: <LiveIcon fontSize="small" />, color: "warning", label: "In_Progress"
+    },
+    scheduled: {
+      icon: <ScheduledIcon fontSize="small" />, color: "info", label: "Scheduled"
+    }
+  };
+  return configs[normalized] || configs.scheduled;
+};
 
 const MatchList = ({ matches }) => {
   const theme = useTheme();
@@ -38,44 +57,47 @@ const MatchList = ({ matches }) => {
   }
 
   return (
-    <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-      <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
+    <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+      <Box sx={{ maxHeight: 480, overflowY: "auto" }}>
         <List sx={{ py: 0 }}>
-          {matches.map((match) => (
-            <React.Fragment key={match.id}>
-              <ListItem
-                sx={{
-                  py: 2,
-                  "&:hover": { backgroundColor: theme.palette.action.hover }
-                }}
-              >
-                <ListItemAvatar>
-                  <Avatar
-                    sx={{
-                      bgcolor: theme.palette.primary.main,
-                      width: 40,
-                      height: 40
-                    }}
-                  >
-                    <SoccerIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {match.teamA}
-                      </Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        vs
-                      </Typography>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {match.teamB}
-                      </Typography>
-                    </Box>
-                  }
-                  secondary={
-                    <Stack direction="row" spacing={2} mt={1}>
+          {matches.map((match) => {
+            const statusConfig = getStatusConfig(match.status);
+
+            return (
+              <React.Fragment key={match.id}>
+                <ListItem
+                  sx={{
+                    py: 2.5,
+                    px: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    "&:hover": { backgroundColor: theme.palette.action.hover }
+                  }}
+                >
+                  {/* 左侧队伍信息 */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: 140 }}>
+                    <Avatar src={match.teamALogo} alt={match.teamA} />
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {match.teamA}
+                    </Typography>
+                  </Box>
+
+                  <Typography variant="body1" color="text.secondary">
+                    vs
+                  </Typography>
+
+                  {/* 右侧队伍信息 */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: 140 }}>
+                    <Avatar src={match.teamBLogo} alt={match.teamB} />
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {match.teamB}
+                    </Typography>
+                  </Box>
+
+                  {/* 比赛信息 */}
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Stack direction="row" spacing={1}>
                       <Chip
                         icon={<DateIcon fontSize="small" />}
                         label={match.date}
@@ -106,46 +128,35 @@ const MatchList = ({ matches }) => {
                         />
                       )}
                     </Stack>
-                  }
-                  sx={{ my: 0 }}
-                />
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Chip
-                    icon={
-                      match.status === "Completed" ? (
-                        <CompletedIcon fontSize="small" />
-                      ) : (
-                        <PendingIcon fontSize="small" />
-                      )
-                    }
-                    label={match.status}
-                    color={
-                      match.status === "Completed" ? "success" : "default"
-                    }
-                    size="small"
-                    sx={{ ml: 1 }}
-                  />
-                  {match.score && (
-                    <Typography variant="h6" fontWeight="bold">
-                      {match.score}
-                    </Typography>
-                  )}
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      minWidth: 90,
-                      textTransform: "none",
-                      boxShadow: "none"
-                    }}
-                  >
-                    Details
-                  </Button>
-                </Box>
-              </ListItem>
-              <Divider variant="middle" />
-            </React.Fragment>
-          ))}
+                  </Box>
+
+                  {/* 状态和操作 */}
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Chip
+                      icon={statusConfig.icon}
+                      label={statusConfig.label}
+                      color={statusConfig.color}
+                      size="small"
+                      sx={{ fontWeight: "bold" }}
+                    />
+                    {match.score && (
+                      <Typography variant="h6" fontWeight="bold">
+                        {match.score}
+                      </Typography>
+                    )}
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{ minWidth: 90, textTransform: "none", boxShadow: "none" }}
+                    >
+                      Details
+                    </Button>
+                  </Stack>
+                </ListItem>
+                <Divider variant="middle" />
+              </React.Fragment>
+            );
+          })}
         </List>
       </Box>
     </Paper>
