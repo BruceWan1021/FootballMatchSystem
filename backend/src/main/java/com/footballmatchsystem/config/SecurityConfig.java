@@ -18,9 +18,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 允许跨域
-                .csrf(csrf -> csrf.disable()) // 关闭 CSRF 保护（适用于 REST API）
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 关闭 Session
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/register",
@@ -29,9 +29,10 @@ public class SecurityConfig {
                                 "/api/auth/verify-email",
                                 "/api/matches/scheduled",
                                 "/api/matches/all",
-                                "/api/tournaments/scheduled"
-                        ).permitAll() // 允许访问
-                        .anyRequest().authenticated() // 其他请求需要身份验证
+                                "/api/tournaments/scheduled",
+                                "/api/teams/**" // ✅ 包含上传、POST、GET、PUT 等所有 team 路径
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 );
 
         return http.build();
@@ -45,10 +46,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // 允许前端访问
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true); // 允许携带 Cookie
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -5,6 +5,7 @@ import com.footballmatchsystem.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -51,4 +52,6 @@ public class TeamController {
     public ResponseEntity<Boolean> existsByName(@RequestParam String name) {
         return ResponseEntity.ok(teamService.existsByName(name));
     }
+
+
 }

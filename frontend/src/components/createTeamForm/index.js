@@ -1,18 +1,5 @@
 import React, { useState } from 'react';
-import {
-    Box,
-    Button,
-    Grid,
-    MenuItem,
-    TextField,
-    Typography,
-    InputLabel,
-    Select,
-    FormControl,
-    Paper,
-    Avatar,
-    FormHelperText
-} from '@mui/material';
+import { Box, Button, Grid, TextField, Typography, FormControl, Paper, Avatar, FormHelperText } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 const ColorPicker = styled('input')({
@@ -33,12 +20,13 @@ const CreateTeamForm = () => {
         school: "",
         founded: "",
         logo: null,
-        homeJersey: "#3f51b5",
-        homeShorts: "#ffffff",
-        homeSocks: "#000000",
-        awayJersey: "#f50057",
-        awayShorts: "#eeeeee",
-        awaySocks: "#888888",
+        logoUrl: "",
+        homeJerseyColor: "#3f51b5",
+        homeShortsColor: "#ffffff",
+        homeSocksColor: "#000000",
+        awayJerseyColor: "#f50057",
+        awayShortsColor: "#eeeeee",
+        awaySocksColor: "#888888",
         description: "",
     });
 
@@ -50,15 +38,31 @@ const CreateTeamForm = () => {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setForm((prev) => ({ ...prev, logo: file }));
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setLogoPreview(reader.result);
-            };
+            reader.onloadend = () => setLogoPreview(reader.result);
             reader.readAsDataURL(file);
+
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+                const res = await fetch("http://localhost:8080/api/teams/upload-logo", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!res.ok) throw new Error("Upload failed");
+
+                const data = await res.json();
+                setForm((prev) => ({ ...prev, logoUrl: data.url }));
+                console.log("Uploaded Logo URL:", data.url);
+            } catch (error) {
+                console.error("Upload error:", error);
+                alert("Failed to upload logo.");
+            }
         }
     };
 
@@ -68,10 +72,27 @@ const CreateTeamForm = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form Data:", form);
-        alert("Team created successfully (simulated)");
+        const payload = { ...form };
+        delete payload.logo;
+
+        try {
+            const res = await fetch("http://localhost:8080/api/teams", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) throw new Error("Team creation failed");
+
+            const data = await res.json();
+            alert("Team created successfully!");
+            console.log("Created team:", data);
+        } catch (error) {
+            console.error("Submit error:", error);
+            alert("Failed to create team");
+        }
     };
 
     return (
@@ -110,18 +131,6 @@ const CreateTeamForm = () => {
                         </Avatar>
                     </Grid>
 
-                    <Grid item xs={12}>
-                        <Typography variant="h6" sx={{
-                            mb: 2,
-                            color: 'text.secondary',
-                            borderBottom: '1px solid',
-                            borderColor: 'divider',
-                            pb: 1
-                        }}>
-                            Team Information
-                        </Typography>
-                    </Grid>
-
                     <Grid item xs={12} md={6}>
                         <TextField
                             name="name"
@@ -138,7 +147,7 @@ const CreateTeamForm = () => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             name="shortName"
-                            label="Short Name (Abbreviation)"
+                            label="Short Name"
                             fullWidth
                             value={form.shortName}
                             onChange={handleChange}
@@ -149,9 +158,21 @@ const CreateTeamForm = () => {
 
                     <Grid item xs={12} md={6}>
                         <TextField
+                            name="school"
+                            label="School"
+                            fullWidth
+                            value={form.school}
+                            onChange={handleChange}
+                            variant="outlined"
+                            size="small"
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <TextField
                             type="date"
                             name="founded"
-                            label="Founded Date"
+                            label="Founded"
                             fullWidth
                             InputLabelProps={{ shrink: true }}
                             value={form.founded}
@@ -160,104 +181,36 @@ const CreateTeamForm = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
-                        <Typography variant="h6" sx={{
-                            mb: 2,
-                            color: 'text.secondary',
-                            borderBottom: '1px solid',
-                            borderColor: 'divider',
-                            pb: 1
-                        }}>
-                            Home Kit Colors
-                        </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <FormControl fullWidth>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Jersey</Typography>
-                            <ColorPicker
-                                type="color"
-                                name="homeJersey"
-                                value={form.homeJersey}
-                                onChange={handleChange}
-                            />
-                            <FormHelperText>{form.homeJersey}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <FormControl fullWidth>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Shorts</Typography>
-                            <ColorPicker
-                                type="color"
-                                name="homeShorts"
-                                value={form.homeShorts}
-                                onChange={handleChange}
-                            />
-                            <FormHelperText>{form.homeShorts}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <FormControl fullWidth>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Socks</Typography>
-                            <ColorPicker
-                                type="color"
-                                name="homeSocks"
-                                value={form.homeSocks}
-                                onChange={handleChange}
-                            />
-                            <FormHelperText>{form.homeSocks}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Typography variant="h6" sx={{
-                            mt: 4,
-                            mb: 2,
-                            color: 'text.secondary',
-                            borderBottom: '1px solid',
-                            borderColor: 'divider',
-                            pb: 1
-                        }}>
-                            Away Kit Colors
-                        </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <FormControl fullWidth>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Jersey</Typography>
-                            <ColorPicker
-                                type="color"
-                                name="awayJersey"
-                                value={form.awayJersey}
-                                onChange={handleChange}
-                            />
-                            <FormHelperText>{form.awayJersey}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <FormControl fullWidth>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Shorts</Typography>
-                            <ColorPicker
-                                type="color"
-                                name="awayShorts"
-                                value={form.awayShorts}
-                                onChange={handleChange}
-                            />
-                            <FormHelperText>{form.awayShorts}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <FormControl fullWidth>
-                            <Typography variant="body2" sx={{ mb: 1 }}>Socks</Typography>
-                            <ColorPicker
-                                type="color"
-                                name="awaySocks"
-                                value={form.awaySocks}
-                                onChange={handleChange}
-                            />
-                            <FormHelperText>{form.awaySocks}</FormHelperText>
-                        </FormControl>
-                    </Grid>
+                    {['home', 'away'].map(type => (
+                        <React.Fragment key={type}>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" sx={{
+                                    mt: 4,
+                                    mb: 2,
+                                    color: 'text.secondary',
+                                    borderBottom: '1px solid',
+                                    borderColor: 'divider',
+                                    pb: 1
+                                }}>
+                                    {type.charAt(0).toUpperCase() + type.slice(1)} Kit Colors
+                                </Typography>
+                            </Grid>
+                            {['JerseyColor', 'ShortsColor', 'SocksColor'].map(part => (
+                                <Grid item xs={12} md={4} key={part}>
+                                    <FormControl fullWidth>
+                                        <Typography variant="body2" sx={{ mb: 1 }}>{part.replace('Color', '')}</Typography>
+                                        <ColorPicker
+                                            type="color"
+                                            name={`${type}${part}`}
+                                            value={form[`${type}${part}`]}
+                                            onChange={handleChange}
+                                        />
+                                        <FormHelperText>{form[`${type}${part}`]}</FormHelperText>
+                                    </FormControl>
+                                </Grid>
+                            ))}
+                        </React.Fragment>
+                    ))}
 
                     <Grid item xs={12}>
                         <TextField
@@ -270,7 +223,6 @@ const CreateTeamForm = () => {
                             onChange={handleChange}
                             variant="outlined"
                             size="small"
-                            helperText="Tell us about your team's history, achievements, or philosophy"
                         />
                     </Grid>
 
