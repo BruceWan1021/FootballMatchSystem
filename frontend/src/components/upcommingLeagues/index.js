@@ -5,12 +5,12 @@ const UpcomingLeagues = () => {
   const [tournaments, setTournaments] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/tournaments/scheduled')
+    fetch('http://localhost:8080/api/tournaments/all')
       .then(response => response.json())
       .then(data => {
         const formattedTournaments = data.map(tournament => ({
           title: tournament.name || "Unknown Name",
-          image: tournament.image || "/images/footballClub.png",
+          image: tournament.logoUrl || "/images/footballClub.png",
         }));
         setTournaments(formattedTournaments);
       })

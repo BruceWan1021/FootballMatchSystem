@@ -1,79 +1,125 @@
 package com.footballmatchsystem.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "tournaments")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tournament {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "poster_url")
-    private String posterUrl;
+    @Column(name = "short_name", length = 50)
+    private String shortName;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "host_school", nullable = false, length = 100)
+    private String hostSchool;
+
+    @Column(length = 50)
+    private String season;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "logo_url", length = 255)
+    private String logoUrl;
+
+    @Column(name = "signup_start")
+    private LocalDateTime signupStart;
+
+    @Column(name = "signup_end")
+    private LocalDateTime signupEnd;
+
+    @Column(name = "league_start")
+    private LocalDateTime leagueStart;
+
+    @Column(name = "league_end")
+    private LocalDateTime leagueEnd;
+
+    @Column(name = "min_teams")
+    private Integer minTeams = 4;
+
+    @Column(name = "max_teams")
+    private Integer maxTeams = 8;
+
+    @Column(name = "min_players_per_team")
+    private Integer minPlayersPerTeam = 5;
+
+    @Column(name = "max_players_per_team")
+    private Integer maxPlayersPerTeam = 18;
+
+    @Column(name = "match_format", nullable = false)
+    private String matchFormat;
+
+    @Column(name = "custom_format_description", columnDefinition = "TEXT")
+    private String customFormatDescription;
+
+    @Column(name = "game_duration")
+    private Integer gameDuration = 60;
+
+    @Column(nullable = false, length = 255)
+    private String location;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "age_group")
+    private AgeGroup ageGroup;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender = Gender.MIXED;
+
+    @Column(name = "equipment_required", columnDefinition = "TEXT")
+    private String equipmentRequired;
+
+    @Column(columnDefinition = "TEXT")
+    private String awards;
+
+    @Column(name = "cancellation_policy", columnDefinition = "TEXT")
+    private String cancellationPolicy;
+
+    @Column(name = "is_public")
+    private Boolean isPublic = true;
+
+    @Column(name = "requires_approval")
+    private Boolean requiresApproval = false;
+
+    @Column(name = "rule_attachment_url", length = 255)
+    private String ruleAttachmentUrl;
+
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TournamentContact> contacts;
+
+    @ManyToMany(mappedBy = "tournaments")
+    private List<Team> teams;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToMany(mappedBy = "tournaments")
-    private Set<User> participants;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "tournaments")
-    private Set<Team> teams;
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public enum AgeGroup {
+        U12, U14, U16, U18, ADULT, OPEN
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPosterUrl() {
-        return posterUrl;
-    }
-
-    public void setPosterUrl(String posterUrl) {
-        this.posterUrl = posterUrl;
-    }
-
-    public Set<User> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(Set<User> participants) {
-        this.participants = participants;
-    }
-
-    public Set<Team> getTeams() {
-        return teams;
-    }
-
-    public void setTeams(Set<Team> teams) {
-        this.teams = teams;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public enum Gender {
+        MIXED, MALE, FEMALE
     }
 }

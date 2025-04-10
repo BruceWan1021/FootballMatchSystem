@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Typography, Grid, Paper, Box, Button } from "@mui/material";
 import WelcomeSection from "../components/welcomeSection";
-import UpcomingMatches from "../components/upcomingMatch";
+import UpcomingMatches from "../components/matches";
 import UpcomingLeagues from "../components/upcommingLeagues";
 import SeasonStats from "../components/seasonStats";
 

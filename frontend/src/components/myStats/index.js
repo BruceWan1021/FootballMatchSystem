@@ -1,18 +1,5 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Chip,
-  Box,
-  Divider,
-  Stack,
-  Avatar,
-  LinearProgress,
-  useTheme,
-  Tooltip
-} from "@mui/material";
+import { Card, CardContent, Typography, Grid, Chip, Box, Divider, Stack, Avatar, LinearProgress, useTheme, Tooltip } from "@mui/material";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -45,15 +32,15 @@ const ValueIndicator = styled('div')(({ theme, trend }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   margin: '0 auto',
-  background: trend === 'up' 
-    ? 'rgba(46, 125, 50, 0.1)' 
-    : trend === 'down' 
-      ? 'rgba(211, 47, 47, 0.1)' 
+  background: trend === 'up'
+    ? 'rgba(46, 125, 50, 0.1)'
+    : trend === 'down'
+      ? 'rgba(211, 47, 47, 0.1)'
       : 'rgba(158, 158, 158, 0.1)',
-  color: trend === 'up' 
-    ? theme.palette.success.main 
-    : trend === 'down' 
-      ? theme.palette.error.main 
+  color: trend === 'up'
+    ? theme.palette.success.main
+    : trend === 'down'
+      ? theme.palette.error.main
       : theme.palette.text.secondary,
   fontSize: '0.75rem',
   fontWeight: 'bold',
@@ -98,27 +85,27 @@ const MyStats = ({ stats = {}, skills = [], honors = [], ranking = null }) => {
         <Grid container spacing={3}>
           {Object.entries(stats).map(([label, value]) => {
             const isGrowth = label.includes('Growth');
-            const trend = isGrowth 
+            const trend = isGrowth
               ? parseFloat(value) > 0 ? 'up' : parseFloat(value) < 0 ? 'down' : 'neutral'
               : null;
-            
+
             return (
               <Grid item xs={6} sm={4} md={3} key={label}>
                 <Tooltip title={label.replace(/([A-Z])/g, ' $1')} arrow>
                   <StatCard>
-                    <Typography 
-                      variant="h4" 
-                      fontWeight="bold" 
+                    <Typography
+                      variant="h4"
+                      fontWeight="bold"
                       color="text.primary"
                       sx={{ mb: 0.5 }}
                     >
                       {value}
                     </Typography>
-                    
+
                     <Typography
                       variant="subtitle2"
                       color="text.secondary"
-                      sx={{ 
+                      sx={{
                         mt: 1,
                         fontWeight: 500,
                         fontSize: '0.8125rem'
@@ -126,11 +113,11 @@ const MyStats = ({ stats = {}, skills = [], honors = [], ranking = null }) => {
                     >
                       {label.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                     </Typography>
-                    
+
                     {isGrowth && (
-                      <Box sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                      <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         mt: 1,
                         gap: 0.5
@@ -138,13 +125,13 @@ const MyStats = ({ stats = {}, skills = [], honors = [], ranking = null }) => {
                         <ValueIndicator trend={trend}>
                           {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'}
                         </ValueIndicator>
-                        <Typography 
-                          variant="caption" 
+                        <Typography
+                          variant="caption"
                           color={
-                            trend === 'up' 
-                              ? 'success.main' 
-                              : trend === 'down' 
-                                ? 'error.main' 
+                            trend === 'up'
+                              ? 'success.main'
+                              : trend === 'down'
+                                ? 'error.main'
                                 : 'text.secondary'
                           }
                           fontWeight="bold"
@@ -163,9 +150,9 @@ const MyStats = ({ stats = {}, skills = [], honors = [], ranking = null }) => {
         {honors.length > 0 && (
           <Box sx={{ mt: 4 }}>
             <Divider sx={{ mb: 2 }}>
-              <Chip 
-                label="Achievements" 
-                color="warning" 
+              <Chip
+                label="Achievements"
+                color="warning"
                 icon={<EmojiEventsIcon fontSize="small" />}
                 sx={{ px: 1 }}
               />
@@ -194,9 +181,9 @@ const MyStats = ({ stats = {}, skills = [], honors = [], ranking = null }) => {
         {ranking && (
           <Box sx={{ mt: 4 }}>
             <Divider sx={{ mb: 2 }}>
-              <Chip 
-                label="Ranking" 
-                color="secondary" 
+              <Chip
+                label="Ranking"
+                color="secondary"
                 icon={<BarChartIcon fontSize="small" />}
                 sx={{ px: 1 }}
               />

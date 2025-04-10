@@ -29,7 +29,7 @@ public class SecurityConfig {
                                 "/api/auth/verify-email",
                                 "/api/matches/scheduled",
                                 "/api/matches/all",
-                                "/api/tournaments/scheduled",
+                                "/api/tournaments/all",
                                 "/api/teams/**" // ✅ 包含上传、POST、GET、PUT 等所有 team 路径
                         ).permitAll()
                         .anyRequest().authenticated()

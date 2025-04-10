@@ -1,18 +1,22 @@
 package com.footballmatchsystem.service;
 
+import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.model.Tournament;
-import com.footballmatchsystem.repository.TournamentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
-@Service
-public class TournamentService {
+public interface TournamentService {
 
-    @Autowired
-    private TournamentRepository tournamentRepository;
+    TournamentDTO createTournament(TournamentDTO dto);
 
-    //获取所有联赛
-    public List<Tournament> getAllTournament(){return tournamentRepository.findAll();}
+    List<TournamentDTO> getAllTournaments();
+
+    Optional<TournamentDTO> getTournamentById(Long id);
+
+    Optional<TournamentDTO> updateTournament(Long id, TournamentDTO updatedDTO);
+
+    boolean deleteTournament(Long id);
+
+    List<Tournament> getAllTournamentEntities();
 }

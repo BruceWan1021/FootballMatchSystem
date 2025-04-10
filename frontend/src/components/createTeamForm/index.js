@@ -49,7 +49,7 @@ const CreateTeamForm = () => {
             try {
                 const formData = new FormData();
                 formData.append("file", file);
-                const res = await fetch("http://localhost:8080/api/teams/upload-logo", {
+                const res = await fetch("http://localhost:8080/api/upload-logo", {
                     method: "POST",
                     body: formData,
                 });
