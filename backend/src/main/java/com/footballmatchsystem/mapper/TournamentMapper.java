@@ -1,7 +1,12 @@
 package com.footballmatchsystem.mapper;
 
+import com.footballmatchsystem.dto.TournamentContactDTO;
 import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.model.Tournament;
+import com.footballmatchsystem.model.TournamentContact;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TournamentMapper {
 
@@ -34,6 +39,22 @@ public class TournamentMapper {
         dto.setIsPublic(entity.getIsPublic());
         dto.setRequiresApproval(entity.getRequiresApproval());
         dto.setRuleAttachmentUrl(entity.getRuleAttachmentUrl());
+
+        // 👇 加入联系人映射（实体 -> DTO）
+        if (entity.getContacts() != null) {
+            List<TournamentContactDTO> contactDTOs = entity.getContacts().stream()
+                    .map(contact -> {
+                        TournamentContactDTO contactDTO = new TournamentContactDTO();
+                        contactDTO.setName(contact.getName());
+                        contactDTO.setEmail(contact.getEmail());
+                        contactDTO.setPhone(contact.getPhone());
+                        contactDTO.setRole(contact.getRole());
+                        contactDTO.setIsPrimary(contact.getIsPrimary());
+                        return contactDTO;
+                    }).collect(Collectors.toList());
+            dto.setContacts(contactDTOs);
+        }
+
         return dto;
     }
 
@@ -65,6 +86,22 @@ public class TournamentMapper {
         entity.setIsPublic(dto.getIsPublic());
         entity.setRequiresApproval(dto.getRequiresApproval());
         entity.setRuleAttachmentUrl(dto.getRuleAttachmentUrl());
+
+        if (dto.getContacts() != null) {
+            List<TournamentContact> contacts = dto.getContacts().stream()
+                    .map(contactDTO -> {
+                        TournamentContact contact = new TournamentContact();
+                        contact.setName(contactDTO.getName());
+                        contact.setEmail(contactDTO.getEmail());
+                        contact.setPhone(contactDTO.getPhone());
+                        contact.setRole(contactDTO.getRole());
+                        contact.setIsPrimary(contactDTO.getIsPrimary() != null && contactDTO.getIsPrimary());
+                        contact.setTournament(entity);
+                        return contact;
+                    }).collect(Collectors.toList());
+            entity.setContacts(contacts);
+        }
+
         return entity;
     }
 }

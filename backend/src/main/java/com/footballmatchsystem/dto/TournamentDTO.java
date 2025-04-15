@@ -3,6 +3,7 @@ package com.footballmatchsystem.dto;
 import com.footballmatchsystem.model.Tournament;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class TournamentDTO {
@@ -27,6 +28,9 @@ public class TournamentDTO {
     private String location;
     private Tournament.AgeGroup ageGroup;
     private Tournament.Gender gender;
+    private String contactEmail;
+    private String contactPhone;
+    private List<TournamentContactDTO> contacts;
     private String equipmentRequired;
     private String awards;
     private String cancellationPolicy;

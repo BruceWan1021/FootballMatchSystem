@@ -18,7 +18,7 @@ const CreateLeaguePage = () => {
     shortName: "",
     hostSchool: "",
     season: "",
-    logo: null,
+    logoUrl: "",
     signUpStart: null,
     signUpEnd: null,
     leagueStart: null,
@@ -27,17 +27,18 @@ const CreateLeaguePage = () => {
     minTeams: 4,
     maxPlayersPerTeam: 18,
     minPlayersPerTeam: 5,
-    format: "",
+    matchFormat: "",
     gameDuration: 60,
     location: "",
     isPublic: true,
     requiresApproval: false,
-    ruleAttachment: null,
+    ruleAttachmentUrl: "",
+    contactName:"",
     contactEmail: "",
     contactPhone: "",
     description: "",
     ageGroup: "",
-    gender: "mixed",
+    gender: "",
     equipmentRequired: "",
     awards: "",
     cancellationPolicy: ""
@@ -85,21 +86,65 @@ const CreateLeaguePage = () => {
 
     if (name === 'logo') {
       setLogoPreview(URL.createObjectURL(file));
+      setForm((prev) => ({ ...prev, logo: file }));
+
       try {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post("/api/upload", formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        const res = await fetch("http://localhost:8080/api/upload-logo", {
+          method: "POST",
+          body: formData,
         });
 
-        const url = response.data?.url || "";
-        setForm((prev) => ({ ...prev, logoUrl: url, logo: file }));
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Upload failed: ${res.status} ${res.statusText} - ${errorText}`);
+        }
+
+        const data = await res.json();
+        const uploadedUrl = data?.url || "";
+
+        setForm((prev) => ({
+          ...prev,
+          logoUrl: uploadedUrl,
+        }));
+
+        console.log("Uploaded Logo URL:", uploadedUrl);
       } catch (error) {
-        console.error("Upload failed", error);
+        console.error("Upload error:", error);
+        alert("Fail to Upload Logo");
       }
     } else if (name === 'ruleAttachment') {
-      setForm((prev) => ({ ...prev, [name]: file }));
+      setForm((prev) => ({ ...prev, ruleAttachment: file }));
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("http://localhost:8080/api/upload-rules", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Upload failed: ${res.status} ${res.statusText} - ${errorText}`);
+        }
+
+        const data = await res.json();
+        const uploadedUrl = data?.url || "";
+
+        setForm((prev) => ({
+          ...prev,
+          ruleAttachmentUrl: uploadedUrl,
+        }));
+
+        console.log("Uploaded Rules URL:", uploadedUrl);
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("Fail to Upload Rule Document");
+      }
     }
   };
 
@@ -114,24 +159,58 @@ const CreateLeaguePage = () => {
     setAdditionalContacts(additionalContacts.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      const formData = new FormData();
-      for (const key in form) {
-        if (form[key] !== null && key !== 'logo') {
-          formData.append(key, form[key]);
-        }
-      }
-      additionalContacts.forEach((contact, index) => {
-        formData.append(`additionalContacts[${index}][name]`, contact.name);
-        formData.append(`additionalContacts[${index}][email]`, contact.email);
-        formData.append(`additionalContacts[${index}][role]`, contact.role);
+    if (!validate()) return;
+  
+    try {
+      const contacts = [
+        {
+          name: form.contactName || "Primary Contact",
+          email: form.contactEmail,
+          phone: form.contactPhone,
+          role: "Organizer",
+          isPrimary: true
+        },
+        ...additionalContacts.map((c) => ({
+          ...c,
+          isPrimary: false
+        }))
+      ];
+  
+      const payload = {
+        ...form,
+        ageGroup: form.ageGroup?.toUpperCase(),
+        gender: form.gender?.toUpperCase(),
+        matchFormat: form.matchFormat?.toUpperCase().replaceAll(" ", "_"),
+        logo: form.logoUrl || "",
+        ruleAttachment: form.ruleAttachmentUrl || "",
+        contacts 
+      };
+  
+      const response = await fetch("http://localhost:8080/api/tournaments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-      console.log("League form data:", Object.fromEntries(formData));
-      alert("League created successfully (mock)");
+  
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Upload failed: ${response.status} - ${text}`);
+      }
+  
+      const result = await response.json();
+      alert("League created successfully!");
+      console.log("Created league:", result);
+    } catch (error) {
+      console.error("League creation error:", error);
+      alert("Failed to create league. Please check console for details.");
     }
   };
+  
+  
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -415,17 +494,17 @@ const CreateLeaguePage = () => {
                   <InputLabel>Match Format </InputLabel>
                   <Select
                     label="Match Format "
-                    name="format"
-                    value={form.format}
+                    name="matchFormat"
+                    value={form.matchFormat}
                     onChange={handleChange}
                   >
-                    <MenuItem value="Round Robin">Round Robin</MenuItem>
+                    <MenuItem value="Round_Robin">Round Robin</MenuItem>
                     <MenuItem value="League">League</MenuItem>
-                    <MenuItem value="Single Elimination">Single Elimination</MenuItem>
-                    <MenuItem value="Double Elimination">Double Elimination</MenuItem>
+                    <MenuItem value="Single_Elimination">Single Elimination</MenuItem>
+                    <MenuItem value="Double_Elimination">Double Elimination</MenuItem>
                     <MenuItem value="Group + Knockout">Group + Knockout</MenuItem>
                     <MenuItem value="League + Playoffs">League + Playoffs</MenuItem>
-                    <MenuItem value="Swiss System">Swiss System</MenuItem>
+                    <MenuItem value="Swiss_System">Swiss System</MenuItem>
                     <MenuItem value="Custom">Custom Format</MenuItem>
                   </Select>
                   <FormHelperText>Select the tournament structure</FormHelperText>
@@ -485,8 +564,8 @@ const CreateLeaguePage = () => {
                     <MenuItem value="U14">Under 14</MenuItem>
                     <MenuItem value="U16">Under 16</MenuItem>
                     <MenuItem value="U18">Under 18</MenuItem>
-                    <MenuItem value="Adult">Adult</MenuItem>
-                    <MenuItem value="Open">Open Age</MenuItem>
+                    <MenuItem value="ADULT">Adult</MenuItem>
+                    <MenuItem value="OPEN">Open Age</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -500,9 +579,9 @@ const CreateLeaguePage = () => {
                     onChange={handleChange}
                     label="Gender"
                   >
-                    <MenuItem value="mixed">Mixed</MenuItem>
-                    <MenuItem value="male">Male</MenuItem>
-                    <MenuItem value="female">Female</MenuItem>
+                    <MenuItem value="MIXED">Mixed</MenuItem>
+                    <MenuItem value="MALE">Male</MenuItem>
+                    <MenuItem value="FEMALE">Female</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -576,6 +655,21 @@ const CreateLeaguePage = () => {
                 </Typography>
               </Grid>
 
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Primary Contact Name "
+                  name="contactName"
+                  type="name"
+                  fullWidth
+                  required
+                  value={form.contactName}
+                  onChange={handleChange}
+                  variant="outlined"
+                  size="small"
+                  error={!!errors.contactName}
+                  helperText={errors.contactName}
+                />
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   label="Primary Contact Email "

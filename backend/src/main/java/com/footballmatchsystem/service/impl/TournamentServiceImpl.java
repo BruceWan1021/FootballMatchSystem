@@ -21,7 +21,14 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public TournamentDTO createTournament(TournamentDTO dto) {
         Tournament tournament = TournamentMapper.toEntity(dto);
-        return TournamentMapper.toDTO(tournamentRepository.save(tournament));
+
+        if (tournament.getContacts() != null) {
+            tournament.getContacts().forEach(contact -> contact.setTournament(tournament));
+        }
+
+        Tournament saved = tournamentRepository.save(tournament);
+        return TournamentMapper.toDTO(saved);
+
     }
 
     @Override
