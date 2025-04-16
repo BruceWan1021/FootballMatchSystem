@@ -104,6 +104,10 @@ public class Tournament {
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TournamentContact> contacts;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id")
+    private User creator;
+
     @ManyToMany(mappedBy = "tournaments")
     private List<Team> teams;
 

@@ -3,9 +3,15 @@ package com.footballmatchsystem.service.impl;
 import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.mapper.TournamentMapper;
 import com.footballmatchsystem.model.Tournament;
+import com.footballmatchsystem.model.User;
 import com.footballmatchsystem.repository.TournamentRepository;
+import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.service.TournamentService;
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +24,22 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Transactional
     @Override
     public TournamentDTO createTournament(TournamentDTO dto) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        System.out.println("当前用户名：" + username);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         Tournament tournament = TournamentMapper.toEntity(dto);
+        tournament.setCreator(user);
 
         if (tournament.getContacts() != null) {
             tournament.getContacts().forEach(contact -> contact.setTournament(tournament));
@@ -28,7 +47,6 @@ public class TournamentServiceImpl implements TournamentService {
 
         Tournament saved = tournamentRepository.save(tournament);
         return TournamentMapper.toDTO(saved);
-
     }
 
     @Override

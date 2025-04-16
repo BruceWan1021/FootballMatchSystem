@@ -18,6 +18,7 @@ const CreateTeamForm = () => {
         name: "",
         shortName: "",
         school: "",
+        homeStadium: "",
         founded: "",
         logo: null,
         logoUrl: "",
@@ -168,6 +169,18 @@ const CreateTeamForm = () => {
                         />
                     </Grid>
 
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            name="homeStadium"
+                            label="homeStadium"
+                            fullWidth
+                            value={form.school}
+                            onChange={handleChange}
+                            variant="outlined"
+                            size="small"
+                        />
+                    </Grid>
+                    
                     <Grid item xs={12} md={6}>
                         <TextField
                             type="date"

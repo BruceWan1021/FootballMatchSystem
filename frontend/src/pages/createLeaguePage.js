@@ -188,10 +188,13 @@ const CreateLeaguePage = () => {
         contacts 
       };
   
+      const token = sessionStorage.getItem("authToken")
+      console.log("当前token:", token);
       const response = await fetch("http://localhost:8080/api/tournaments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -498,10 +501,9 @@ const CreateLeaguePage = () => {
                     value={form.matchFormat}
                     onChange={handleChange}
                   >
-                    <MenuItem value="Round_Robin">Round Robin</MenuItem>
-                    <MenuItem value="League">League</MenuItem>
+                    <MenuItem value="Single_Round_Robin">Single Round Robin</MenuItem>
+                    <MenuItem value="Double_Round_Robin">Double Round Robin</MenuItem>
                     <MenuItem value="Single_Elimination">Single Elimination</MenuItem>
-                    <MenuItem value="Double_Elimination">Double Elimination</MenuItem>
                     <MenuItem value="Group + Knockout">Group + Knockout</MenuItem>
                     <MenuItem value="League + Playoffs">League + Playoffs</MenuItem>
                     <MenuItem value="Swiss_System">Swiss System</MenuItem>

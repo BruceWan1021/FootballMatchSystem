@@ -23,6 +23,9 @@ public class Team {
     private String school;
 
     @Column
+    private String homeStadium;
+
+    @Column
     private LocalDate founded;
 
     @Column(name = "logo_url")
@@ -105,6 +108,14 @@ public class Team {
 
     public void setSchool(String school) {
         this.school = school;
+    }
+
+    public String getHomeStadium() {
+        return homeStadium;
+    }
+
+    public void setHomeStadium(String homeStadium) {
+        this.homeStadium = homeStadium;
     }
 
     public LocalDate getFounded() {

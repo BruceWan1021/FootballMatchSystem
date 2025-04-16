@@ -9,6 +9,7 @@ import {
     CheckCircle as CompletedIcon,
     LocationCity as DepartmentIcon
 } from "@mui/icons-material";
+import WcIcon from "@mui/icons-material/Wc";
 
 const LeagueCard = ({ league }) => {
     const theme = useTheme();
@@ -38,6 +39,25 @@ const LeagueCard = ({ league }) => {
                 return "default";
         }
     };
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return "";
+        return new Date(dateStr).toISOString().split("T")[0];
+    };
+
+    const formatGender = (g) => {
+        if (!g) return "Unknown";
+        switch (g.toUpperCase()) {
+          case "MALE":
+            return "Male";
+          case "FEMALE":
+            return "Female";
+          case "MIXED":
+            return "Mixed";
+          default:
+            return g;
+        }
+      };      
 
     return (
         <Card
@@ -108,7 +128,7 @@ const LeagueCard = ({ league }) => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
                     <CalendarIcon fontSize="small" color="action" />
                     <Typography variant="body2">
-                        {league.startDate} — {league.endDate}
+                        {formatDate(league.startDate)} — {formatDate(league.endDate)}
                     </Typography>
                 </Box>
 
@@ -119,6 +139,15 @@ const LeagueCard = ({ league }) => {
                         {league.teams} teams participating
                     </Typography>
                 </Box>
+
+                {/* Gender */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                    <WcIcon fontSize="small" color="action" />
+                    <Typography variant="body2">
+                        Gender: {formatGender(league.gender)}
+                    </Typography>
+                </Box>
+
 
                 {/* Progress indicator for active leagues */}
                 {league.status === "In Progress" && league.progress && (

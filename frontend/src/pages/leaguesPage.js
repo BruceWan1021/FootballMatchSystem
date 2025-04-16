@@ -7,54 +7,62 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import LeagueCard from "../components/leagueCard";
 
-const mockLeagues = [
-  {
-    id: 1,
-    name: "2025 Spring Football League",
-    startDate: "2025-03-15",
-    endDate: "2025-06-01",
-    department: "Computer Science",
-    teams: 8,
-    status: "Upcoming",
-    bannerUrl: "https://via.placeholder.com/400x180?text=Spring+Football+League"
-  },
-  {
-    id: 2,
-    name: "2024 Autumn Championship",
-    startDate: "2024-09-10",
-    endDate: "2024-11-25",
-    department: "Information Engineering",
-    teams: 10,
-    status: "Completed",
-    bannerUrl: "https://via.placeholder.com/400x180?text=Autumn+Championship"
-  },
-  {
-    id: 3,
-    name: "2025 Summer Mini League",
-    startDate: "2025-07-01",
-    endDate: "2025-08-15",
-    department: "Sports Committee",
-    teams: 6,
-    status: "In Progress",
-    bannerUrl: "https://via.placeholder.com/400x180?text=Summer+Mini+League"
-  },
-];
-
 const LeaguesPage = () => {
+  const [leagues, setLeagues] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [filteredLeagues, setFilteredLeagues] = useState(mockLeagues);
+  const [filteredLeagues, setFilteredLeagues] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let filtered = mockLeagues.filter((league) =>
+    const fetchLeagues = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/tournaments");
+        const data = await res.json();
+        const enriched = data.map(league => {
+          const now = new Date();
+          const start = new Date(league.leagueStart);
+          const end = new Date(league.leagueEnd);
+        
+          let status = "Upcoming";
+          if (now >= start && now <= end) {
+            status = "In Progress";
+          } else if (now > end) {
+            status = "Completed";
+          }
+        
+          return {
+            id: league.id,
+            name: league.name,
+            startDate: start.toISOString().split("T")[0],
+            endDate: end.toISOString().split("T")[0],
+            department: league.hostSchool,
+            teams: league.maxTeams,
+            gender: league.gender, 
+            status,
+            bannerUrl: league.logoUrl || `https://via.placeholder.com/400x180?text=${encodeURIComponent(league.name)}`
+          };
+        });
+        
+        setLeagues(enriched);
+        setFilteredLeagues(enriched);
+      } catch (err) {
+        console.error("Failed to fetch leagues:", err);
+      }
+    };
+
+    fetchLeagues();
+  }, []);
+
+  useEffect(() => {
+    let filtered = leagues.filter((league) =>
       league.name.toLowerCase().includes(search.toLowerCase())
     );
     if (statusFilter !== "All") {
       filtered = filtered.filter((league) => league.status === statusFilter);
     }
     setFilteredLeagues(filtered);
-  }, [search, statusFilter]);
+  }, [search, statusFilter, leagues]);
 
   const handleViewDetails = (id) => {
     navigate(`/leagues/${id}`);
