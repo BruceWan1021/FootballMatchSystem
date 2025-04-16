@@ -44,6 +44,10 @@ public class SecurityConfig {
                                 "/api/matches/all",
                                 "/api/upload-logo"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/tournaments/**",
+                                "/api/tournaments"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(customUserDetailsService)

@@ -4,6 +4,7 @@ import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -56,5 +57,16 @@ public class TournamentController {
     public ResponseEntity<Void> deleteTournament(@PathVariable Long id) {
         boolean deleted = tournamentService.deleteTournament(id);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    // 加入 Tournament
+    @PostMapping("/{id}/join")
+    public ResponseEntity<String> joinTournament(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+        tournamentService.joinTournamentByUsername(id, username);
+        return ResponseEntity.ok("Team joined successfully");
     }
 }

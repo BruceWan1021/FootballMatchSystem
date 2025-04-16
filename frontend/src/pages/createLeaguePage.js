@@ -19,8 +19,8 @@ const CreateLeaguePage = () => {
     hostSchool: "",
     season: "",
     logoUrl: "",
-    signUpStart: null,
-    signUpEnd: null,
+    signupStart: null,
+    signupEnd: null,
     leagueStart: null,
     leagueEnd: null,
     maxTeams: 8,
@@ -54,7 +54,7 @@ const CreateLeaguePage = () => {
     if (!form.name) newErrors.name = "League name is required";
     if (!form.hostSchool) newErrors.hostSchool = "Host school is required";
     if (!form.contactEmail) newErrors.contactEmail = "Contact email is required";
-    if (form.signUpStart && form.signUpEnd && form.signUpStart > form.signUpEnd) {
+    if (form.signupStart && form.signupEnd && form.signupStart > form.signupEnd) {
       newErrors.signUpEnd = "Signup end must be after start";
     }
     if (form.leagueStart && form.leagueEnd && form.leagueStart > form.leagueEnd) {
@@ -189,7 +189,6 @@ const CreateLeaguePage = () => {
       };
   
       const token = sessionStorage.getItem("authToken")
-      console.log("当前token:", token);
       const response = await fetch("http://localhost:8080/api/tournaments", {
         method: "POST",
         headers: {
@@ -366,14 +365,14 @@ const CreateLeaguePage = () => {
               <Grid item xs={12} sm={6}>
                 <DatePicker
                   label="Signup Start"
-                  value={form.signUpStart}
-                  onChange={(date) => handleDateChange('signUpStart', date)}
+                  value={form.signupStart}
+                  onChange={(date) => handleDateChange('signupStart', date)}
                   slotProps={{
                     textField: {
                       variant: 'outlined',
                       size: 'small',
                       fullWidth: true,
-                      error: !!errors.signUpStart
+                      error: !!errors.signupStart
                     }
                   }}
                 />
@@ -381,15 +380,15 @@ const CreateLeaguePage = () => {
               <Grid item xs={12} sm={6}>
                 <DatePicker
                   label="Signup End"
-                  value={form.signUpEnd}
-                  onChange={(date) => handleDateChange('signUpEnd', date)}
+                  value={form.signupEnd}
+                  onChange={(date) => handleDateChange('signupEnd', date)}
                   slotProps={{
                     textField: {
                       variant: 'outlined',
                       size: 'small',
                       fullWidth: true,
-                      error: !!errors.signUpEnd,
-                      helperText: errors.signUpEnd
+                      error: !!errors.signupEnd,
+                      helperText: errors.signupEnd
                     }
                   }}
                 />

@@ -19,4 +19,7 @@ public interface TournamentService {
     boolean deleteTournament(Long id);
 
     List<Tournament> getAllTournamentEntities();
+
+    void joinTournamentByUsername(Long tournamentId, String username);
+
 }

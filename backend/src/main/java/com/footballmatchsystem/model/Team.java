@@ -22,7 +22,7 @@ public class Team {
     @Column
     private String school;
 
-    @Column
+    @Column(name = "home_stadium")
     private String homeStadium;
 
     @Column
@@ -35,7 +35,7 @@ public class Team {
     private String captainName;
 
     @Column(name = "captain_id")
-    private String captainId;
+    private Long captainId;
 
     @Column
     private String contact;
@@ -62,6 +62,12 @@ public class Team {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -126,6 +132,14 @@ public class Team {
         this.founded = founded;
     }
 
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public String getLogoUrl() {
         return logoUrl;
     }
@@ -142,11 +156,11 @@ public class Team {
         this.captainName = captainName;
     }
 
-    public String getCaptainId() {
+    public Long getCaptainId() {
         return captainId;
     }
 
-    public void setCaptainId(String captainId) {
+    public void setCaptainId(Long captainId) {
         this.captainId = captainId;
     }
 

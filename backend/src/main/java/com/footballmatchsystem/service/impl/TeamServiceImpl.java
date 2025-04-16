@@ -3,9 +3,14 @@ package com.footballmatchsystem.service.impl;
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.mapper.TeamMapper;
 import com.footballmatchsystem.model.Team;
+import com.footballmatchsystem.model.User;
 import com.footballmatchsystem.repository.TeamRepository;
+import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.service.TeamService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,13 +24,34 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private TeamRepository teamRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public TeamDTO createTeam(TeamDTO teamDTO) {
         Team team = TeamMapper.toEntity(teamDTO);
         team.setCreatedAt(LocalDateTime.now());
+
+        //从 SecurityContext 中获取当前用户名
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        //根据用户名获取 User 实体
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        //关联创建者
+        team.setCreatedBy(user);
+
         Team saved = teamRepository.save(team);
         return TeamMapper.toDTO(saved);
     }
+
 
     @Override
     public List<TeamDTO> getAllTeams() {

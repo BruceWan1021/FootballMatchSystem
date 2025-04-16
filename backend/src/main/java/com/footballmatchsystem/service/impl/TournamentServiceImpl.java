@@ -2,8 +2,12 @@ package com.footballmatchsystem.service.impl;
 
 import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.mapper.TournamentMapper;
+import com.footballmatchsystem.model.Team;
 import com.footballmatchsystem.model.Tournament;
+import com.footballmatchsystem.model.TournamentParticipant;
 import com.footballmatchsystem.model.User;
+import com.footballmatchsystem.repository.TeamRepository;
+import com.footballmatchsystem.repository.TournamentParticipantRepository;
 import com.footballmatchsystem.repository.TournamentRepository;
 import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.service.TournamentService;
@@ -11,7 +15,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,9 +26,12 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Autowired
     private TournamentRepository tournamentRepository;
-
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TeamRepository teamRepository;
+    @Autowired
+    private TournamentParticipantRepository participantRepository;
 
     @Transactional
     @Override
@@ -33,7 +39,6 @@ public class TournamentServiceImpl implements TournamentService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        System.out.println("当前用户名：" + username);
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -87,4 +92,28 @@ public class TournamentServiceImpl implements TournamentService {
     public List<Tournament> getAllTournamentEntities() {
         return tournamentRepository.findAll();
     }
+
+    @Override
+    @Transactional
+    public void joinTournamentByUsername(Long tournamentId, String username) {
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Team team = teamRepository.findByCaptainId(user.getId())
+                .orElseThrow(() -> new RuntimeException("No team associated with this user"));
+
+        // 检查是否已加入
+        if (participantRepository.existsByTournamentAndTeam(tournament, team)) {
+            throw new RuntimeException("This team has already joined the tournament.");
+        }
+
+        TournamentParticipant participant = new TournamentParticipant();
+        participant.setTournament(tournament);
+        participant.setTeam(team);
+        participantRepository.save(participant);
+    }
+
 }

@@ -11,7 +11,7 @@ import {
 } from "@mui/icons-material";
 import WcIcon from "@mui/icons-material/Wc";
 
-const LeagueCard = ({ league }) => {
+const LeagueCard = ({ league, onViewDetails }) => {
     const theme = useTheme();
 
     const getStatusIcon = () => {
@@ -48,16 +48,16 @@ const LeagueCard = ({ league }) => {
     const formatGender = (g) => {
         if (!g) return "Unknown";
         switch (g.toUpperCase()) {
-          case "MALE":
-            return "Male";
-          case "FEMALE":
-            return "Female";
-          case "MIXED":
-            return "Mixed";
-          default:
-            return g;
+            case "MALE":
+                return "Male";
+            case "FEMALE":
+                return "Female";
+            case "MIXED":
+                return "Mixed";
+            default:
+                return g;
         }
-      };      
+    };
 
     return (
         <Card
@@ -186,14 +186,12 @@ const LeagueCard = ({ league }) => {
                     variant="contained"
                     size="small"
                     fullWidth
-                    sx={{
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        boxShadow: "none"
-                    }}
+                    sx={{ textTransform: "none", fontWeight: "bold", boxShadow: "none" }}
+                    onClick={onViewDetails} 
                 >
                     View League
                 </Button>
+
             </CardActions>
         </Card>
     );
