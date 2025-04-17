@@ -3,6 +3,7 @@ package com.footballmatchsystem.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -72,15 +73,16 @@ public class Team {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToMany(mappedBy = "responsibleTeams")
-    private Set<User> responsibleUsers;
-
     @ManyToMany
     @JoinTable(
             name = "team_tournament",
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "tournament_id"))
     private Set<Tournament> tournaments;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserTeamRole> userRoles = new HashSet<>();
+
 
     // === Getters & Setters ===
 
@@ -236,19 +238,19 @@ public class Team {
         this.createdAt = createdAt;
     }
 
-    public Set<User> getResponsibleUsers() {
-        return responsibleUsers;
-    }
-
-    public void setResponsibleUsers(Set<User> responsibleUsers) {
-        this.responsibleUsers = responsibleUsers;
-    }
-
     public Set<Tournament> getTournaments() {
         return tournaments;
     }
 
     public void setTournaments(Set<Tournament> tournaments) {
         this.tournaments = tournaments;
+    }
+
+    public Set<UserTeamRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserTeamRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }

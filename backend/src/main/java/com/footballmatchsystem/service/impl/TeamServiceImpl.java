@@ -2,11 +2,13 @@ package com.footballmatchsystem.service.impl;
 
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.mapper.TeamMapper;
-import com.footballmatchsystem.model.Team;
-import com.footballmatchsystem.model.User;
+import com.footballmatchsystem.model.*;
+import com.footballmatchsystem.repository.TeamParticipantRepository;
 import com.footballmatchsystem.repository.TeamRepository;
+import com.footballmatchsystem.repository.TournamentParticipantRepository;
 import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.service.TeamService;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TeamParticipantRepository participantRepository;
 
     @Override
     public TeamDTO createTeam(TeamDTO teamDTO) {
@@ -90,4 +94,27 @@ public class TeamServiceImpl implements TeamService {
     public boolean existsByName(String name) {
         return teamRepository.existsByName(name);
     }
+
+    @Override
+    @Transactional
+    public String joinTeamByUsername(Long teamId, String username) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        TeamParticipant.JoinStatus status = TeamParticipant.JoinStatus.PENDING;
+
+        TeamParticipant participant = new TeamParticipant();
+        participant.setTeam(team);
+        participant.setUser(user);
+        participant.setStatus(status);
+        participantRepository.save(participant);
+
+        return status == TeamParticipant.JoinStatus.APPROVED
+                ? "Successfully Join"
+                : "The application has been submitted and is awaiting review by the manager";
+    }
+
 }

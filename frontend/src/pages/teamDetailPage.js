@@ -28,7 +28,6 @@ const TeamDetailPage = () => {
         if (!res.ok) throw new Error('Failed to fetch team');
         const data = await res.json();
 
-        // 封装配色和基础结构
         const enrichedTeam = {
           ...data,
           homeColors: {
@@ -77,6 +76,32 @@ const TeamDetailPage = () => {
     );
   }
 
+  const handleJoinTeam = async () => {
+    const token = sessionStorage.getItem("authToken");
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/teams/${id}/join`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const message = await response.text();
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Join failed");
+      }
+
+      alert(message);
+    } catch (err) {
+      console.error("Join error:", err);
+      alert("Error joining league: " + err.message);
+    }
+  };
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, borderRadius: 3 }}>
@@ -112,7 +137,7 @@ const TeamDetailPage = () => {
                 )}
               </Box>
 
-              <Button variant="contained" color="success" size="large">
+              <Button onClick={handleJoinTeam} variant="contained" color="success" size="large">
                 Join In
               </Button>
             </Box>

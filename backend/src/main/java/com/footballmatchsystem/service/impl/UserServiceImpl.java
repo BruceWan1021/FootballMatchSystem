@@ -4,6 +4,7 @@ import com.footballmatchsystem.model.User;
 import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -35,4 +36,11 @@ public class UserServiceImpl implements UserService {
         User user = new User(username, email, password);
         return userRepository.save(user);
     }
+    @Override
+    public Long findUserIdByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"))
+                .getId();
+    }
+
 }

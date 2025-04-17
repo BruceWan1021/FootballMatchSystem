@@ -1,11 +1,15 @@
 package com.footballmatchsystem.controller;
 
 import com.footballmatchsystem.dto.TeamDTO;
+import com.footballmatchsystem.dto.TeamMemberDTO;
 import com.footballmatchsystem.service.TeamService;
+import com.footballmatchsystem.service.UserService;
+import com.footballmatchsystem.service.UserTeamRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.net.URI;
 import java.util.List;
@@ -16,6 +20,10 @@ public class TeamController {
 
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private UserTeamRoleService userTeamRoleService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping
     public ResponseEntity<TeamDTO> createTeam(@RequestBody TeamDTO teamDTO) {
@@ -53,5 +61,19 @@ public class TeamController {
         return ResponseEntity.ok(teamService.existsByName(name));
     }
 
+    @GetMapping("/{id}/members")
+    public ResponseEntity<List<TeamMemberDTO>> getTeamMembers(@PathVariable Long id) {
+        return ResponseEntity.ok(userTeamRoleService.getTeamMembers(id));
+    }
+
+    @PostMapping("/{id}/join")
+    public ResponseEntity<String> requestJoinTeam(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+        String resultMessage = teamService.joinTeamByUsername(id, username);
+        return ResponseEntity.ok(resultMessage);
+    }
 
 }

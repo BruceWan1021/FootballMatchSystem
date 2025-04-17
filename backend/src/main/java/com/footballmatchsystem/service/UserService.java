@@ -9,4 +9,5 @@ public interface UserService {
     Optional<User> findByEmail(String email);
     boolean validateUser(String username, String password);
     User registerUser(String username, String email, String password);
+    Long findUserIdByUsername(String username);
 }

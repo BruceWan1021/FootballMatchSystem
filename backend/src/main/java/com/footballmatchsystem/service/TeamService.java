@@ -18,4 +18,6 @@ public interface TeamService {
     boolean deleteTeam(Long id);
 
     boolean existsByName(String name);
+
+    String joinTeamByUsername(Long id, String username);
 }
