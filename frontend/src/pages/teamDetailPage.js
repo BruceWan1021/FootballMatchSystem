@@ -1,0 +1,221 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Box, Typography, Avatar, Grid, Paper, Divider, Chip, Button, Stack,
+  useTheme, Tabs, Tab, CircularProgress
+} from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { SportsSoccer, School, Event } from '@mui/icons-material';
+import KitColorsSection from '../components/kitColorsSection';
+import SquadPlayersSection from '../components/squadPlayersSection';
+import UpcomingMatchesSection from '../components/upcomingMatchesSection';
+
+const TeamDetailPage = () => {
+  const theme = useTheme();
+  const { id } = useParams();
+  const [team, setTeam] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/teams/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch team');
+        const data = await res.json();
+
+        // 封装配色和基础结构
+        const enrichedTeam = {
+          ...data,
+          homeColors: {
+            jersey: data.homeJerseyColor,
+            shorts: data.homeShortsColor,
+            socks: data.homeSocksColor,
+          },
+          awayColors: {
+            jersey: data.awayJerseyColor,
+            shorts: data.awayShortsColor,
+            socks: data.awaySocksColor,
+          },
+          stats: {
+            wins: 0,
+            draws: 0,
+            losses: 0,
+          },
+          players: [], // 可未来对接 /api/teams/{id}/players
+          upcomingMatches: [], // 可未来对接 /api/teams/{id}/matches
+        };
+
+        setTeam(enrichedTeam);
+      } catch (err) {
+        setError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeam();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !team) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 10 }}>
+        <Typography color="error">{error || 'Team not found'}</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+      <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, borderRadius: 3 }}>
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={2}>
+            <Avatar
+              src={team.logoUrl}
+              sx={{
+                width: 120,
+                height: 120,
+                mx: 'auto',
+                border: `4px solid ${theme.palette.primary.main}`,
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={10}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                mb: 1,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ mr: 2 }}>
+                  {team.name}
+                </Typography>
+                {team.shortName && (
+                  <Chip label={team.shortName} color="primary" size="small" />
+                )}
+              </Box>
+
+              <Button variant="contained" color="success" size="large">
+                Join In
+              </Button>
+            </Box>
+
+            {team.school && (
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <School color="action" fontSize="small" sx={{ mr: 1 }} />
+                <Typography variant="subtitle1" color="text.secondary">
+                  {team.school}
+                </Typography>
+              </Box>
+            )}
+
+            {team.founded && (
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Event color="action" fontSize="small" sx={{ mr: 1 }} />
+                <Typography variant="subtitle2" color="text.secondary">
+                  Founded: {team.founded}
+                </Typography>
+              </Box>
+            )}
+
+            {team.description && (
+              <Typography
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: theme.palette.action.hover,
+                  borderRadius: 1,
+                  fontStyle: 'italic',
+                }}
+              >
+                {team.description}
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 4 }}>
+          <Tabs
+            value={tabIndex}
+            onChange={handleTabChange}
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            <Tab label="Overview" />
+            <Tab label="Squad" />
+            <Tab label="Matches" />
+          </Tabs>
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Tab 内容 */}
+        {tabIndex === 0 && (
+          <>
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ display: 'flex', alignItems: 'center' }}
+              >
+                <SportsSoccer sx={{ mr: 1 }} /> Season Stats
+              </Typography>
+              <Stack direction="row" spacing={2} sx={{ overflowX: 'auto', py: 1 }}>
+                <Paper sx={{ p: 2, borderRadius: 2, minWidth: 100, textAlign: 'center' }}>
+                  <Typography variant="h5" color="primary" fontWeight="bold">
+                    {team.stats?.wins ?? 0}
+                  </Typography>
+                  <Typography variant="body2">Wins</Typography>
+                </Paper>
+                <Paper sx={{ p: 2, borderRadius: 2, minWidth: 100, textAlign: 'center' }}>
+                  <Typography variant="h5" color="primary" fontWeight="bold">
+                    {team.stats?.draws ?? 0}
+                  </Typography>
+                  <Typography variant="body2">Draws</Typography>
+                </Paper>
+                <Paper sx={{ p: 2, borderRadius: 2, minWidth: 100, textAlign: 'center' }}>
+                  <Typography variant="h5" color="primary" fontWeight="bold">
+                    {team.stats?.losses ?? 0}
+                  </Typography>
+                  <Typography variant="body2">Losses</Typography>
+                </Paper>
+              </Stack>
+            </Box>
+            <KitColorsSection homeColors={team.homeColors} awayColors={team.awayColors} />
+          </>
+        )}
+
+        {tabIndex === 1 && <SquadPlayersSection players={team.players || []} />}
+        {tabIndex === 2 && <UpcomingMatchesSection matches={team.upcomingMatches || []} />}
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
+          <Button variant="outlined" color="secondary">
+            Share Team
+          </Button>
+          <Button variant="contained" color="primary">
+            Edit Team
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
+  );
+};
+
+export default TeamDetailPage;

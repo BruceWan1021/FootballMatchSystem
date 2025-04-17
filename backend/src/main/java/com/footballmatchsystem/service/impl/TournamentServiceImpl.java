@@ -12,6 +12,7 @@ import com.footballmatchsystem.repository.TournamentRepository;
 import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.service.TournamentService;
 import jakarta.transaction.Transactional;
+import org.hibernate.mapping.Join;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +96,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public void joinTournamentByUsername(Long tournamentId, String username) {
+    public String joinTournamentByUsername(Long tournamentId, String username) {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
 
@@ -105,15 +106,19 @@ public class TournamentServiceImpl implements TournamentService {
         Team team = teamRepository.findByCaptainId(user.getId())
                 .orElseThrow(() -> new RuntimeException("No team associated with this user"));
 
-        // 检查是否已加入
-        if (participantRepository.existsByTournamentAndTeam(tournament, team)) {
-            throw new RuntimeException("This team has already joined the tournament.");
-        }
+        TournamentParticipant.JoinStatus status = tournament.getRequiresApproval()
+                ? TournamentParticipant.JoinStatus.PENDING
+                : TournamentParticipant.JoinStatus.APPROVED;
 
         TournamentParticipant participant = new TournamentParticipant();
         participant.setTournament(tournament);
         participant.setTeam(team);
+        participant.setStatus(status);
         participantRepository.save(participant);
+
+        return status == TournamentParticipant.JoinStatus.APPROVED
+                ? "Successfully Join"
+                : "The application has been submitted and is awaiting review by the manager";
     }
 
 }

@@ -48,12 +48,14 @@ const TournamentDetailsPage = () => {
         },
       });
 
+      const message = await response.text();
+
       if (!response.ok) {
         const text = await response.text();
         throw new Error(text || "Join failed");
       }
 
-      alert("Successfully joined the league!");
+      alert(message);
     } catch (err) {
       console.error("Join error:", err);
       alert("Error joining league: " + err.message);

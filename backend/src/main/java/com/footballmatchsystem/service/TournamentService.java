@@ -20,6 +20,6 @@ public interface TournamentService {
 
     List<Tournament> getAllTournamentEntities();
 
-    void joinTournamentByUsername(Long tournamentId, String username);
+    String joinTournamentByUsername(Long tournamentId, String username);
 
 }

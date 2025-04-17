@@ -46,7 +46,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/tournaments/**",
-                                "/api/tournaments"
+                                "/api/tournaments",
+                                "/api/teams",
+                                "/api/teams/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -15,6 +15,10 @@ public class TournamentParticipant {
     @ManyToOne
     private Team team;
 
+    @Enumerated(EnumType.STRING)
+    private JoinStatus status = JoinStatus.PENDING;
+
+
     // Getters and Setters
 
     public Long getId() {
@@ -40,5 +44,20 @@ public class TournamentParticipant {
     public void setTeam(Team team) {
         this.team = team;
     }
+
+    public JoinStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(JoinStatus status) {
+        this.status = status;
+    }
+
+    public enum JoinStatus {
+        PENDING,    // 等待审批
+        APPROVED,   // 审批通过（正式加入）
+        REJECTED    // 审批拒绝
+    }
+
 }
 

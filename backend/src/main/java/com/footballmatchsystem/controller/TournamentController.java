@@ -66,7 +66,7 @@ public class TournamentController {
             Authentication authentication) {
 
         String username = authentication.getName();
-        tournamentService.joinTournamentByUsername(id, username);
-        return ResponseEntity.ok("Team joined successfully");
+        String resultMessage = tournamentService.joinTournamentByUsername(id, username);
+        return ResponseEntity.ok(resultMessage);
     }
 }
