@@ -18,11 +18,19 @@ const DetailRow = styled(Box)(({ theme }) => ({
 }));
 
 const UserProfile = ({ profile }) => {
+  const { username, email, roles = [], playerProfile, refereeProfile } = profile;
+
+  const isPlayer = roles.includes("PLAYER") && playerProfile;
+  const isReferee = roles.includes("REFEREE") && refereeProfile;
+
+  const name = profile.name || username;
+  const avatarUrl = profile.avatarUrl || "https://i.pravatar.cc/150?img=10";
+
   return (
     <ProfileContainer elevation={3}>
       <Box sx={{ display: "flex", alignItems: "flex-start", gap: 3 }}>
         <Avatar 
-          src={profile.avatarUrl} 
+          src={avatarUrl} 
           sx={{ 
             width: 120, 
             height: 120, 
@@ -33,45 +41,54 @@ const UserProfile = ({ profile }) => {
         />
         <Box sx={{ flex: 1 }}>
           <Typography variant="h4" fontWeight="bold" gutterBottom>
-            {profile.name} <Typography component="span" color="primary" fontWeight="bold">#{profile.jerseyNumber}</Typography>
+            {name}
+            {isPlayer && playerProfile.jerseyNumber && (
+              <Typography component="span" color="primary" fontWeight="bold"> #{playerProfile.jerseyNumber}</Typography>
+            )}
           </Typography>
           
           <DetailRow>
-            <Chip label={profile.role} color="primary" size="small" />
-            <Chip label={profile.position} variant="outlined" size="small" />
-            <Chip label={profile.team} color="secondary" size="small" />
+            {roles.map(role => (
+              <Chip key={role} label={role} color="primary" size="small" />
+            ))}
+            {isPlayer && playerProfile.position && (
+              <Chip label={playerProfile.position} variant="outlined" size="small" />
+            )}
+            {isPlayer && playerProfile.teamName && (
+              <Chip label={playerProfile.teamName} color="secondary" size="small" />
+            )}
+            {isReferee && refereeProfile.tournamentName && (
+              <Chip label={`Referee: ${refereeProfile.tournamentName}`} variant="outlined" size="small" />
+            )}
           </DetailRow>
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
             <DetailRow>
               <Typography variant="body1" fontWeight="medium" color="text.secondary">
-                Department:
+                Email:
               </Typography>
-              <Typography variant="body1">{profile.department}</Typography>
+              <Typography variant="body1">{email}</Typography>
             </DetailRow>
-            
-            <DetailRow>
-              <Typography variant="body1" fontWeight="medium" color="text.secondary">
-                Height:
-              </Typography>
-              <Typography variant="body1">{profile.height}</Typography>
-            </DetailRow>
-            
-            <DetailRow>
-              <Typography variant="body1" fontWeight="medium" color="text.secondary">
-                Weight:
-              </Typography>
-              <Typography variant="body1">{profile.weight}</Typography>
-            </DetailRow>
-            
-            <DetailRow>
-              <Typography variant="body1" fontWeight="medium" color="text.secondary">
-                Age:
-              </Typography>
-              <Typography variant="body1">{profile.age}</Typography>
-            </DetailRow>
+
+            {(isPlayer || isReferee) && (
+              <>
+                <DetailRow>
+                  <Typography variant="body1" fontWeight="medium" color="text.secondary">
+                    Height:
+                  </Typography>
+                  <Typography variant="body1">{(playerProfile?.height || refereeProfile?.height) + " cm"}</Typography>
+                </DetailRow>
+
+                <DetailRow>
+                  <Typography variant="body1" fontWeight="medium" color="text.secondary">
+                    Weight:
+                  </Typography>
+                  <Typography variant="body1">{(playerProfile?.weight || refereeProfile?.weight) + " kg"}</Typography>
+                </DetailRow>
+              </>
+            )}
           </Box>
         </Box>
       </Box>
@@ -79,4 +96,4 @@ const UserProfile = ({ profile }) => {
   );
 };
 
-export default UserProfile; 
+export default UserProfile;

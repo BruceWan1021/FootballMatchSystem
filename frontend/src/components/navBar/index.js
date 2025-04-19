@@ -25,12 +25,6 @@ const Navbar = ({ isAuthenticated }) => {
             <Button color="inherit" component={Link} to="/teams">
               Team
             </Button>
-            <Button color="inherit" component={Link} to="/news">
-              News
-            </Button>
-            <Button color="inherit" component={Link} to="/community">
-              Community
-            </Button>
             {/* <Button color="inherit" component={Link} to="/shop">
               Shop
             </Button> */}

@@ -20,4 +20,6 @@ public interface TeamService {
     boolean existsByName(String name);
 
     String joinTeamByUsername(Long id, String username);
+
+    List<TeamDTO> getMyTeams(String username);
 }

@@ -39,7 +39,7 @@ public class UserTeamRoleServiceImpl implements UserTeamRoleService {
                         utr.getUser().getId(),
                         utr.getUser().getUsername(),
                         utr.getUser().getAvatarUrl(),
-                        utr.getRole()
+                        utr.getRole().name()
                 ))
                 .collect(Collectors.toList());
     }
@@ -59,7 +59,8 @@ public class UserTeamRoleServiceImpl implements UserTeamRoleService {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new IllegalArgumentException("Team not found"));
 
-        UserTeamRole newRelation = new UserTeamRole(user, team, role);
+        UserTeamRole.TeamRole roleEnum = UserTeamRole.TeamRole.valueOf(role.toUpperCase());
+        UserTeamRole newRelation = new UserTeamRole(user, team, roleEnum);
         userTeamRoleRepository.save(newRelation);
     }
 
@@ -82,7 +83,7 @@ public class UserTeamRoleServiceImpl implements UserTeamRoleService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("Team not found"));
 
-        UserTeamRole role = new UserTeamRole(user, team, "player");
+        UserTeamRole role = new UserTeamRole(user, team, UserTeamRole.TeamRole.PLAYER);
         userTeamRoleRepository.save(role);
 
         return "Successfully joined the team.";

@@ -26,6 +26,9 @@ const LoginForm = () => {
         sessionStorage.setItem('authToken', token);
         alert("Login Successful" );
         navigate('/');
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
     } else {
         alert("登录失败：" + result);
     }

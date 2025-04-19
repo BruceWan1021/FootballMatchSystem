@@ -22,4 +22,6 @@ public interface TournamentService {
 
     String joinTournamentByUsername(Long tournamentId, String username);
 
+    List<TournamentDTO> getMyTournaments(String username);
+
 }

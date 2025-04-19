@@ -3,10 +3,7 @@ package com.footballmatchsystem.service.impl;
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.mapper.TeamMapper;
 import com.footballmatchsystem.model.*;
-import com.footballmatchsystem.repository.TeamParticipantRepository;
-import com.footballmatchsystem.repository.TeamRepository;
-import com.footballmatchsystem.repository.TournamentParticipantRepository;
-import com.footballmatchsystem.repository.UserRepository;
+import com.footballmatchsystem.repository.*;
 import com.footballmatchsystem.service.TeamService;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
@@ -30,6 +27,8 @@ public class TeamServiceImpl implements TeamService {
     private UserRepository userRepository;
     @Autowired
     private TeamParticipantRepository participantRepository;
+    @Autowired
+    private UserTeamRoleRepository userTeamRoleRepository;
 
     @Override
     public TeamDTO createTeam(TeamDTO teamDTO) {
@@ -116,5 +115,20 @@ public class TeamServiceImpl implements TeamService {
                 ? "Successfully Join"
                 : "The application has been submitted and is awaiting review by the manager";
     }
+
+    @Override
+    public List<TeamDTO> getMyTeams(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<UserTeamRole> userTeamRoles = userTeamRoleRepository.findByUserId(user.getId());
+
+        return userTeamRoles.stream()
+                .map(UserTeamRole::getTeam)      // 提取 Team
+                .distinct()                      // 防止重复
+                .map(TeamMapper::toDTO)          // 转换成 DTO
+                .collect(Collectors.toList());
+    }
+
 
 }

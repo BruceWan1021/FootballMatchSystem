@@ -65,6 +65,15 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserTeamRole> teamRoles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserTeamRole> tournamentRoles = new HashSet<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private PlayerProfile playerProfile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private RefereeProfile refereeProfile;
+
     public User() {}
 
     public User(String username, String email, String password) {
@@ -127,4 +136,28 @@ public class User {
     public Set<UserTeamRole> getTeamRoles() { return teamRoles; }
 
     public void setTeamRoles(Set<UserTeamRole> teamRoles) { this.teamRoles = teamRoles; }
+
+    public Set<UserTeamRole> getTournamentRoles() {
+        return tournamentRoles;
+    }
+
+    public void setTournamentRoles(Set<UserTeamRole> tournamentRoles) {
+        this.tournamentRoles = tournamentRoles;
+    }
+
+    public PlayerProfile getPlayerProfile() {
+        return playerProfile;
+    }
+
+    public void setPlayerProfile(PlayerProfile playerProfile) {
+        this.playerProfile = playerProfile;
+    }
+
+    public RefereeProfile getRefereeProfile() {
+        return refereeProfile;
+    }
+
+    public void setRefereeProfile(RefereeProfile refereeProfile) {
+        this.refereeProfile = refereeProfile;
+    }
 }

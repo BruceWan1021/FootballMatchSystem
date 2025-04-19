@@ -2,6 +2,7 @@ package com.footballmatchsystem.controller;
 
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.dto.TeamMemberDTO;
+import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.service.TeamService;
 import com.footballmatchsystem.service.UserService;
 import com.footballmatchsystem.service.UserTeamRoleService;
@@ -34,6 +35,13 @@ public class TeamController {
     @GetMapping
     public List<TeamDTO> getAllTeams() {
         return teamService.getAllTeams();
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<TeamDTO>> getMyTeams(Authentication authentication) {
+        String username = authentication.getName();
+        List<TeamDTO> teams = teamService.getMyTeams(username);
+        return ResponseEntity.ok(teams);
     }
 
     @GetMapping("/{id}")

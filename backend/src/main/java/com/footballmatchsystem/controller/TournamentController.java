@@ -30,6 +30,13 @@ public class TournamentController {
         return ResponseEntity.created(URI.create("/api/tournaments/" + created.getId())).body(created);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<TournamentDTO>> getMyTournaments(Authentication authentication) {
+        String username = authentication.getName();
+        List<TournamentDTO> tournaments = tournamentService.getMyTournaments(username);
+        return ResponseEntity.ok(tournaments);
+    }
+
     // 获取所有 Tournament
     @GetMapping
     public ResponseEntity<List<TournamentDTO>> getAllTournaments() {
@@ -69,4 +76,5 @@ public class TournamentController {
         String resultMessage = tournamentService.joinTournamentByUsername(id, username);
         return ResponseEntity.ok(resultMessage);
     }
+
 }

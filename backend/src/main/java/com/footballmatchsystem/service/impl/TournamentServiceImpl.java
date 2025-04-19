@@ -2,14 +2,8 @@ package com.footballmatchsystem.service.impl;
 
 import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.mapper.TournamentMapper;
-import com.footballmatchsystem.model.Team;
-import com.footballmatchsystem.model.Tournament;
-import com.footballmatchsystem.model.TournamentParticipant;
-import com.footballmatchsystem.model.User;
-import com.footballmatchsystem.repository.TeamRepository;
-import com.footballmatchsystem.repository.TournamentParticipantRepository;
-import com.footballmatchsystem.repository.TournamentRepository;
-import com.footballmatchsystem.repository.UserRepository;
+import com.footballmatchsystem.model.*;
+import com.footballmatchsystem.repository.*;
 import com.footballmatchsystem.service.TournamentService;
 import jakarta.transaction.Transactional;
 import org.hibernate.mapping.Join;
@@ -18,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +28,8 @@ public class TournamentServiceImpl implements TournamentService {
     private TeamRepository teamRepository;
     @Autowired
     private TournamentParticipantRepository participantRepository;
+    @Autowired
+    private UserTournamentRoleRepository userTournamentRoleRepository;
 
     @Transactional
     @Override
@@ -52,6 +49,9 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         Tournament saved = tournamentRepository.save(tournament);
+
+        UserTournamentRole role = new UserTournamentRole(user, saved, UserTournamentRole.TournamentRole.ORGANIZER);
+        userTournamentRoleRepository.save(role);
         return TournamentMapper.toDTO(saved);
     }
 
@@ -120,5 +120,28 @@ public class TournamentServiceImpl implements TournamentService {
                 ? "Successfully Join"
                 : "The application has been submitted and is awaiting review by the manager";
     }
+
+    @Override
+    public List<TournamentDTO> getMyTournaments(String username) {
+        // 获取当前用户
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 查询用户在联赛中担任 ADMIN 或 ORGANIZER 的所有记录
+        List<UserTournamentRole> roles = userTournamentRoleRepository
+                .findByUserAndRoleIn(user, List.of(
+                        UserTournamentRole.TournamentRole.ADMIN,
+                        UserTournamentRole.TournamentRole.ORGANIZER
+                ));
+
+        // 提取联赛并映射为 DTO
+        return roles.stream()
+                .map(UserTournamentRole::getTournament)
+                .distinct() // 去重
+                .map(TournamentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
 }

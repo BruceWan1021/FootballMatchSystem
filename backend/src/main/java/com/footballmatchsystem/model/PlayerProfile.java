@@ -1,34 +1,36 @@
 package com.footballmatchsystem.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_team_role")
-public class UserTeamRole {
+@Table(name = "player_profiles")
+public class PlayerProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 所属用户
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
     private User user;
 
-    // 所属球队
+    @Column(nullable = false)
+    private String position;
+
+    @Column(nullable = false)
+    private int number;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "team_id")
     private Team team;
 
-    // 队内角色（枚举类型）
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TeamRole role;
+    private int height;
+
+    @Column(nullable = false)
+    private int weight;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -36,20 +38,10 @@ public class UserTeamRole {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public UserTeamRole() {}
-
-    public UserTeamRole(User user, Team team, TeamRole role) {
-        this.user = user;
-        this.team = team;
-        this.role = role;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
+    // ✅ 自动设置创建时间
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -57,7 +49,6 @@ public class UserTeamRole {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // === Getters & Setters ===
 
     public Long getId() {
         return id;
@@ -75,6 +66,22 @@ public class UserTeamRole {
         this.user = user;
     }
 
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
     public Team getTeam() {
         return team;
     }
@@ -83,12 +90,20 @@ public class UserTeamRole {
         this.team = team;
     }
 
-    public TeamRole getRole() {
-        return role;
+    public int getHeight() {
+        return height;
     }
 
-    public void setRole(TeamRole role) {
-        this.role = role;
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -105,12 +120,5 @@ public class UserTeamRole {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public enum TeamRole {
-        PLAYER,
-        CAPTAIN,
-        MANAGER,
-        COACH
     }
 }

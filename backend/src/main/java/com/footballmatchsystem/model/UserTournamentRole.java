@@ -6,29 +6,33 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_team_role")
-public class UserTeamRole {
+@Table(name = "user_tournament_roles")
+public class UserTournamentRole {
+
+    public enum TournamentRole {
+        ORGANIZER,
+        REFEREE,
+        ADMIN,
+        STAFF
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 所属用户
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
 
-    // 所属球队
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
+    @JoinColumn(name = "tournament_id", nullable = false)
     @JsonIgnore
-    private Team team;
+    private Tournament tournament;
 
-    // 队内角色（枚举类型）
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TeamRole role;
+    private TournamentRole role;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -36,11 +40,11 @@ public class UserTeamRole {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public UserTeamRole() {}
+    public UserTournamentRole() {}
 
-    public UserTeamRole(User user, Team team, TeamRole role) {
+    public UserTournamentRole(User user, Tournament tournament, TournamentRole role) {
         this.user = user;
-        this.team = team;
+        this.tournament = tournament;
         this.role = role;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -75,19 +79,19 @@ public class UserTeamRole {
         this.user = user;
     }
 
-    public Team getTeam() {
-        return team;
+    public Tournament getTournament() {
+        return tournament;
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 
-    public TeamRole getRole() {
+    public TournamentRole getRole() {
         return role;
     }
 
-    public void setRole(TeamRole role) {
+    public void setRole(TournamentRole role) {
         this.role = role;
     }
 
@@ -105,12 +109,5 @@ public class UserTeamRole {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public enum TeamRole {
-        PLAYER,
-        CAPTAIN,
-        MANAGER,
-        COACH
     }
 }

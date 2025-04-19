@@ -1,34 +1,33 @@
 package com.footballmatchsystem.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_team_role")
-public class UserTeamRole {
+@Table(name = "referee_profiles")
+public class RefereeProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 所属用户
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
     private User user;
 
-    // 所属球队
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
-    @JsonIgnore
-    private Team team;
+    @Column(name = "license_number", nullable = false)
+    private String licenseNumber;
 
-    // 队内角色（枚举类型）
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tournament_id", nullable = false)
+    private Tournament tournament;
+
     @Column(nullable = false)
-    private TeamRole role;
+    private int height;
+
+    @Column(nullable = false)
+    private int weight;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -36,20 +35,10 @@ public class UserTeamRole {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public UserTeamRole() {}
-
-    public UserTeamRole(User user, Team team, TeamRole role) {
-        this.user = user;
-        this.team = team;
-        this.role = role;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
+    // ===== 生命周期钩子方法：自动设置时间戳 =====
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -57,8 +46,7 @@ public class UserTeamRole {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // === Getters & Setters ===
-
+    // ===== Getters & Setters =====
     public Long getId() {
         return id;
     }
@@ -75,20 +63,36 @@ public class UserTeamRole {
         this.user = user;
     }
 
-    public Team getTeam() {
-        return team;
+    public String getLicenseNumber() {
+        return licenseNumber;
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
     }
 
-    public TeamRole getRole() {
-        return role;
+    public Tournament getTournament() {
+        return tournament;
     }
 
-    public void setRole(TeamRole role) {
-        this.role = role;
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -105,12 +109,5 @@ public class UserTeamRole {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public enum TeamRole {
-        PLAYER,
-        CAPTAIN,
-        MANAGER,
-        COACH
     }
 }

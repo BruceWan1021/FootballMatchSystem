@@ -18,6 +18,7 @@ import ProfilePage from "./pages/profilePage";
 import TeamDetailPage from "./pages/teamDetailPage";
 import ScheduleMatchPage from "./pages/scheduleMatchPage";
 import TeamsPage from "./pages/teamPage";
+import MyOrganizationsPage from "./pages/myOrganizationsPage";
 
 const App = () => {
   const queryClient = new QueryClient({
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="/teams/:id" element={<TeamDetailPage />} />
           <Route path="/schedule-match" element={<ScheduleMatchPage />} />
           <Route path="/teams" element={<TeamsPage />} />
+          <Route path="/my-organization" element={<MyOrganizationsPage />} />
         </Routes>
         <Footer />
       </BrowserRouter>
