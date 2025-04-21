@@ -5,6 +5,7 @@ import com.footballmatchsystem.mapper.TournamentMapper;
 import com.footballmatchsystem.model.*;
 import com.footballmatchsystem.repository.*;
 import com.footballmatchsystem.service.TournamentService;
+import com.footballmatchsystem.util.RoundRobinScheduler;
 import jakarta.transaction.Transactional;
 import org.hibernate.mapping.Join;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +32,8 @@ public class TournamentServiceImpl implements TournamentService {
     private TournamentParticipantRepository participantRepository;
     @Autowired
     private UserTournamentRoleRepository userTournamentRoleRepository;
+    @Autowired
+    private MatchRepository matchRepository;
 
     @Transactional
     @Override
@@ -142,6 +146,46 @@ public class TournamentServiceImpl implements TournamentService {
                 .collect(Collectors.toList());
     }
 
+    public boolean isAdminOrCreator(Long tournamentId, String userName) {
+        Optional<User> userOpt = userRepository.findByUsername(userName);
+        if (userOpt.isEmpty()) return false;
 
+        Long userId = userOpt.get().getId();
+
+        return userTournamentRoleRepository.existsByUserIdAndTournamentIdAndRole(userId, tournamentId, UserTournamentRole.TournamentRole.ADMIN) ||
+                userTournamentRoleRepository.existsByUserIdAndTournamentIdAndRole(userId, tournamentId, UserTournamentRole.TournamentRole.ORGANIZER);
+    }
+
+    @Override
+    public List<Match> generateSchedule(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
+        List<Team> teams = participantRepository.findApprovedTeamsByTournamentId(tournamentId);
+        List<RoundRobinScheduler.Team> schedulerTeams = teams.stream()
+                .map(team -> new RoundRobinScheduler.Team(Math.toIntExact(team.getId()), team.getName(), team.getHomeStadium()))
+                .toList();
+
+        List<RoundRobinScheduler.Match> generatedMatches = RoundRobinScheduler.generateRoundRobinSchedule(
+                schedulerTeams,
+                tournament.getLeagueStart().toLocalDate(), // LocalDate
+                1,                            // intervalDays（你也可以做成 tournament 的字段）
+                true                         // doubleRound
+        );
+
+        List<Match> savedMatches = new ArrayList<>();
+
+        for (RoundRobinScheduler.Match m : generatedMatches) {
+            Match match = new Match();
+            match.setTournament(tournament);
+            match.setTeam1(teamRepository.getReferenceById((long) m.homeTeam().id()));
+            match.setTeam2(teamRepository.getReferenceById((long) m.awayTeam().id()));
+            match.setMatchDate(m.scheduledAt());
+            match.setStatus(MatchStatus.SCHEDULED);
+            savedMatches.add(matchRepository.save(match));
+        }
+
+        return savedMatches;
+    }
 
 }

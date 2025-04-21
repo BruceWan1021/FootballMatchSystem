@@ -83,11 +83,16 @@ public class Tournament {
     @Column(nullable = false)
     private Gender gender = Gender.MIXED;
 
-    @Column(name = "equipment_required", columnDefinition = "TEXT")
-    private String equipmentRequired;
+    @ElementCollection
+    @CollectionTable(name = "tournament_equipment", joinColumns = @JoinColumn(name = "tournament_id"))
+    @Column(name = "equipment")
+    private List<String> equipmentRequired;
 
-    @Column(columnDefinition = "TEXT")
-    private String awards;
+    @ElementCollection
+    @CollectionTable(name = "tournament_awards", joinColumns = @JoinColumn(name = "tournament_id"))
+    @Column(name = "award")
+    private List<String> awards;
+
 
     @Column(name = "cancellation_policy", columnDefinition = "TEXT")
     private String cancellationPolicy;

@@ -25,9 +25,9 @@ const Navbar = ({ isAuthenticated }) => {
             <Button color="inherit" component={Link} to="/teams">
               Team
             </Button>
-            {/* <Button color="inherit" component={Link} to="/shop">
-              Shop
-            </Button> */}
+            <Button color="inherit" component={Link} to="/my-organization">
+              Organizations
+            </Button>
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>

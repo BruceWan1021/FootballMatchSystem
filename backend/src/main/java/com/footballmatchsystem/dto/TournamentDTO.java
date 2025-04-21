@@ -31,8 +31,8 @@ public class TournamentDTO {
     private String contactEmail;
     private String contactPhone;
     private List<TournamentContactDTO> contacts;
-    private String equipmentRequired;
-    private String awards;
+    private List<String> equipmentRequired;
+    private List<String> awards;
     private String cancellationPolicy;
     private Boolean isPublic;
     private Boolean requiresApproval;

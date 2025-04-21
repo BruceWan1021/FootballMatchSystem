@@ -2,10 +2,10 @@ import React from "react";
 import { Box, Typography, Stack, Divider, Chip, Paper, Grid, Button } from "@mui/material";
 import { CalendarToday, People, EventAvailable, EventBusy, LocationOn } from "@mui/icons-material";
 
-const LeagueHeader = ({ tournament, handleJoinTournament, formatDate }) => {
+const LeagueHeader = ({ tournament, handleJoinTournament, formatDate, showJoinButton }) => {
     const now = new Date();
     const signupEndDate = new Date(tournament.signupEnd);
-    const showJoinButton = now <= signupEndDate;
+    const allowSignup = now <= signupEndDate;
 
     return (
         <Box sx={{ mb: 4 }}>
@@ -30,7 +30,7 @@ const LeagueHeader = ({ tournament, handleJoinTournament, formatDate }) => {
                     {tournament.name}
                 </Typography>
 
-                {showJoinButton && (
+                {showJoinButton && allowSignup && (
                     <Button
                         variant="contained"
                         size="large"

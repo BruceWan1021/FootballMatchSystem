@@ -46,6 +46,7 @@ const MyOrganizationsPage = () => {
     const handleTabChange = (event, newValue) => {
         setTab(newValue);
     };
+    
 
     if (loading) {
         return (
@@ -139,7 +140,7 @@ const MyOrganizationsPage = () => {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => navigate("/tournament/create")}
+                            onClick={() => navigate("/create-league")}
                             sx={{
                                 textTransform: "none",
                                 borderRadius: 2,
@@ -179,7 +180,7 @@ const MyOrganizationsPage = () => {
                                     <Button
                                         variant="outlined"
                                         color="primary"
-                                        onClick={() => navigate("/tournaments")}
+                                        onClick={() => navigate("/leagues")}
                                         sx={{
                                             textTransform: "none",
                                             borderRadius: 2,
@@ -216,7 +217,7 @@ const MyOrganizationsPage = () => {
                                     <Grid item xs={12} sm={6} md={4} key={tournament.id}>
                                         <LeagueCard
                                             league={leagueCardData}
-                                            onViewDetails={() => navigate(`/tournament/${tournament.id}`)}
+                                            onViewDetails={() => navigate(`/league-manage/${tournament.id}`)}
                                             elevation={3}
                                         />
                                     </Grid>
@@ -241,7 +242,7 @@ const MyOrganizationsPage = () => {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => navigate("/team/create")}
+                            onClick={() => navigate("/create-team")}
                             sx={{
                                 textTransform: "none",
                                 borderRadius: 2,

@@ -12,4 +12,6 @@ public interface UserTournamentRoleRepository extends JpaRepository<UserTourname
     List<UserTournamentRole> findByUser(User user);
     List<UserTournamentRole> findByTournament(Tournament tournament);
     List<UserTournamentRole> findByUserAndRoleIn(User user, List<UserTournamentRole.TournamentRole> admin);
+
+    boolean existsByUserIdAndTournamentIdAndRole(Long userId, Long tournamentId, UserTournamentRole.TournamentRole role);
 }

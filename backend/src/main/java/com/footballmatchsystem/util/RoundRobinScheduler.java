@@ -17,7 +17,6 @@ public class RoundRobinScheduler {
         if (teams.size() % 2 != 0) {
             teams.add(new Team(-1, "Bye", ""));
         }
-
         int numTeams = teams.size();
         int numRounds = numTeams - 1;
         int matchesPerRound = numTeams / 2;

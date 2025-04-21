@@ -2,20 +2,38 @@ import React, { useEffect, useState } from "react";
 import { 
   Box, Typography, Container, Grid, Paper, 
   Avatar, CircularProgress, Tooltip, Fade, 
-  useTheme, useMediaQuery 
+  useTheme, useMediaQuery, Button 
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import LeagueHeader from "../components/leagueHeader";
 import LeagueDetailsSection from "../components/leagueDetailSection";
 import LeagueContacts from "../components/leagueDetailSection/leagueContact";
 
 const TournamentDetailsPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [tournament, setTournament] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAdminOrCreator, setIsAdminOrCreator] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // ✅ 内联 API 方法：判断当前用户是否是管理员或创建者
+  const isTournamentAdminOrCreator = async (tournamentId, token) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/is-admin-or-creator`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to verify user role");
+      return await res.json(); // { isAdminOrCreator: true/false }
+    } catch (error) {
+      console.error("isTournamentAdminOrCreator error:", error);
+      return { isAdminOrCreator: false };
+    }
+  };
 
   useEffect(() => {
     const fetchTournament = async () => {
@@ -26,6 +44,12 @@ const TournamentDetailsPage = () => {
         if (!res.ok) throw new Error('Failed to fetch tournament');
         const data = await res.json();
         setTournament(data);
+
+        const token = sessionStorage.getItem("authToken");
+        if (token) {
+          const result = await isTournamentAdminOrCreator(id, token);
+          setIsAdminOrCreator(result.isAdminOrCreator);
+        }
       } catch (error) {
         console.error("Failed to fetch tournament:", error);
         setError(error.message);
@@ -51,8 +75,7 @@ const TournamentDetailsPage = () => {
       const message = await response.text();
 
       if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Join failed");
+        throw new Error(message || "Join failed");
       }
 
       alert(message);
@@ -136,10 +159,21 @@ const TournamentDetailsPage = () => {
             }
           }}
         >
+          {isAdminOrCreator && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <Tooltip title="Edit Tournament">
+                <Button variant="outlined" color="primary" onClick={() => navigate(`/tournaments/${id}/edit`)}>
+                  Edit
+                </Button>
+              </Tooltip>
+            </Box>
+          )}
+
           <LeagueHeader
             tournament={tournament}
             handleJoinTournament={handleJoinTournament}
             formatDate={formatDate}
+            showJoinButton={!isAdminOrCreator}
           />
 
           <Box sx={{ 

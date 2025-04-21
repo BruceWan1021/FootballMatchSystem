@@ -1,6 +1,7 @@
 package com.footballmatchsystem.service;
 
 import com.footballmatchsystem.dto.TournamentDTO;
+import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.Tournament;
 
 import java.util.List;
@@ -23,5 +24,9 @@ public interface TournamentService {
     String joinTournamentByUsername(Long tournamentId, String username);
 
     List<TournamentDTO> getMyTournaments(String username);
+
+    boolean isAdminOrCreator(Long tournamentId, String userName);
+
+    List<Match> generateSchedule(Long tournamentId);
 
 }

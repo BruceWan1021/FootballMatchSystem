@@ -1,12 +1,17 @@
 package com.footballmatchsystem.controller;
 
 import com.footballmatchsystem.model.Match;
+import com.footballmatchsystem.model.UserTournamentRole;
 import com.footballmatchsystem.service.MatchService;
+import com.footballmatchsystem.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -14,6 +19,8 @@ public class MatchController {
 
     @Autowired
     private MatchService matchService;
+    @Autowired
+    private TournamentService tournamentService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Match>> getMatches(){
@@ -43,4 +50,6 @@ public class MatchController {
         Match createdMatch = matchService.createMatch(match);
         return ResponseEntity.ok(createdMatch);
     }
+
+
 }
