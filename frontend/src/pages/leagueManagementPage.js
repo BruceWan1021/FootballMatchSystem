@@ -14,20 +14,27 @@ const LeagueManagementPage = () => {
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
+  const fetchTournament = async () => {
+    try {
+      setLoading(true); // 在手动刷新时也加 loading
+      const token = sessionStorage.getItem("authToken");
+      const res = await fetch(`http://localhost:8080/api/tournaments/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error("Failed to load tournament");
+      const data = await res.json();
+      setTournament(data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setSnackbar({ open: true, message: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTournament = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/tournaments/32`);
-        if (!res.ok) throw new Error("Failed to load tournament");
-        const data = await res.json();
-        setTournament(data);
-      } catch (error) {
-        console.error(error);
-        setSnackbar({ open: true, message: error.message });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTournament();
   }, [id]);
 
@@ -35,7 +42,7 @@ const LeagueManagementPage = () => {
     setTabIndex(newValue);
   };
 
-  if (loading) return (
+  if (loading || !tournament) return (
     <Container sx={{ mt: 10, textAlign: "center" }}>
       <CircularProgress />
     </Container>
@@ -44,7 +51,7 @@ const LeagueManagementPage = () => {
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        League Management: {tournament.name}
+        League Management: {tournament?.name || "Untitled"}
       </Typography>
 
       <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 3 }}>
@@ -54,7 +61,11 @@ const LeagueManagementPage = () => {
       </Tabs>
 
       {tabIndex === 0 && (
-            <LeagueInfoEditor tournament={tournament} setTournament={setTournament} />
+        <LeagueInfoEditor
+          tournament={tournament}
+          setTournament={setTournament}
+          refetchTournament={fetchTournament}
+        />
       )}
       {tabIndex === 1 && (
         <ScheduleManager tournamentId={id} />

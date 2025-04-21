@@ -96,19 +96,43 @@ public class TournamentController {
             @PathVariable Long id,
             Authentication authentication) {
 
+        // ✅ 检查用户是否登录
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "message", "Unauthorized access. Please log in.",
+                            "status", 401
+                    ));
+        }
+
         String username = authentication.getName();
 
+        // ✅ 校验权限
         boolean authorized = tournamentService.isAdminOrCreator(id, username);
         if (!authorized) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "You are not authorized to generate schedule."));
+                    .body(Map.of(
+                            "message", "You are not authorized to generate schedule.",
+                            "status", 403
+                    ));
         }
 
-        List<Match> matches = tournamentService.generateSchedule(id);
-        return ResponseEntity.ok(Map.of(
-                "message", "Match schedule generated successfully.",
-                "matchCount", matches.size()
-        ));
-    }
+        try {
+            List<Match> matches = tournamentService.generateSchedule(id);
+            int matchCount = matches != null ? matches.size() : 0;
 
+            return ResponseEntity.ok(Map.of(
+                    "message", "Match schedule generated successfully.",
+                    "matchCount", matchCount,
+                    "status", 200
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "message", "Failed to generate schedule.",
+                            "error", e.getMessage(),
+                            "status", 500
+                    ));
+        }
+    }
 }

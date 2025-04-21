@@ -1,5 +1,7 @@
 package com.footballmatchsystem.controller;
 
+import com.footballmatchsystem.dto.MatchDTO;
+import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.UserTournamentRole;
 import com.footballmatchsystem.service.MatchService;
@@ -23,33 +25,44 @@ public class MatchController {
     private TournamentService tournamentService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Match>> getMatches(){
-        List<Match> matches = matchService.getMatches();
+    public ResponseEntity<List<MatchDTO>> getMatches() {
+        List<MatchDTO> matches = matchService.getMatches()
+                .stream()
+                .map(MatchMapper::toDTO)
+                .toList();
         return ResponseEntity.ok(matches);
     }
+
     @GetMapping("/scheduled")
-    public ResponseEntity<List<Match>> getScheduleMatches(){
-        List<Match> scheduledMatches = matchService.getScheduledMatches();
+    public ResponseEntity<List<MatchDTO>> getScheduleMatches() {
+        List<MatchDTO> scheduledMatches = matchService.getScheduledMatches()
+                .stream()
+                .map(MatchMapper::toDTO) // 使用统一的 DTO 转换器
+                .toList();
         return ResponseEntity.ok(scheduledMatches);
     }
 
     @PutMapping("/{matchId}/in-progress")
-    public ResponseEntity<Match> updateMatchStatusToInProgress(@PathVariable Long matchId){
-        Match updateMatch = matchService.updateMatchStatusToInProgress(matchId);
-        return ResponseEntity.ok(updateMatch);
+    public ResponseEntity<MatchDTO> updateMatchStatusToInProgress(@PathVariable Long matchId){
+        Match updatedMatch = matchService.updateMatchStatusToInProgress(matchId);
+        return ResponseEntity.ok(MatchMapper.toDTO(updatedMatch));
     }
 
     @PutMapping("/{matchId}/completed")
-    public ResponseEntity<Match> updateMatchStatusToCompleted(@PathVariable Long matchId){
-        Match updateMatch = matchService.updateMatchStatusToCompleted(matchId);
-        return ResponseEntity.ok(updateMatch);
+    public ResponseEntity<MatchDTO> updateMatchStatusToCompleted(@PathVariable Long matchId){
+        Match updatedMatch = matchService.updateMatchStatusToCompleted(matchId);
+        return ResponseEntity.ok(MatchMapper.toDTO(updatedMatch));
     }
 
     @PostMapping
-    public ResponseEntity<Match> createMatch(@RequestBody Match match){
+    public ResponseEntity<MatchDTO> createMatch(@RequestBody Match match){
         Match createdMatch = matchService.createMatch(match);
-        return ResponseEntity.ok(createdMatch);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MatchMapper.toDTO(createdMatch));
     }
 
-
+    @GetMapping("/tournaments/{id}")
+    public ResponseEntity<List<MatchDTO>> getMatches(@PathVariable Long id) {
+        List<MatchDTO> matchList = matchService.getMatchesByTournamentId(id);
+        return ResponseEntity.ok(matchList);
+    }
 }

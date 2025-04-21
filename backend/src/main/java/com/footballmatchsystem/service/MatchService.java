@@ -1,5 +1,6 @@
 package com.footballmatchsystem.service;
 
+import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchStatus;
 
@@ -18,6 +19,8 @@ public interface MatchService {
     Match updateMatchStatusToCompleted(Long matchId);
 
     Match createMatch(Match match);
+
+    List<MatchDTO> getMatchesByTournamentId(Long tournamentId);
 
 
 }

@@ -12,6 +12,9 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "round")
+    private Integer round;
+
     @ManyToOne
     @JoinColumn(name = "team_1_id", nullable = false)
     private Team team1; // 第一支参赛队伍
@@ -49,6 +52,14 @@ public class Match {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getRound() {
+        return round;
+    }
+
+    public void setRound(Integer round) {
+        this.round = round;
     }
 
     public Team getTeam1() {

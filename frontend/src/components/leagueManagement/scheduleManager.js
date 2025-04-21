@@ -8,9 +8,25 @@ const ScheduleManager = ({ tournamentId }) => {
   const [matches, setMatches] = useState([]);
 
   const loadMatches = async () => {
-    const res = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/matches`);
-    const data = await res.json();
-    setMatches(data);
+    try {
+      const res = await fetch(`http://localhost:8080/api/matches/tournaments/${tournamentId}`, {
+        headers: {
+          "Authorization": `Bearer ${sessionStorage.getItem("authToken")}`
+        }
+      });
+
+      if (!res.ok) {
+        const text = await res.text(); 
+        throw new Error(`Failed to load matches: ${res.status} - ${text}`);
+      }
+
+      const data = await res.json();
+      setMatches(data);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+      setMatches([]); 
+    }
   };
 
   useEffect(() => {
@@ -23,8 +39,21 @@ const ScheduleManager = ({ tournamentId }) => {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` }
     });
-    const data = await res.json();
-    alert(data.message);
+
+    if (!res.ok) {
+      const text = await res.text();
+      alert(`Failed to regenerate: ${text}`);
+      return;
+    }
+
+    let data;
+    try {
+      data = await res.json();
+      alert(data.message || "Schedule regenerated");
+    } catch (e) {
+      alert("Schedule regenerated, but no message returned.");
+    }
+
     loadMatches();
   };
 
@@ -39,8 +68,8 @@ const ScheduleManager = ({ tournamentId }) => {
           <div key={index}>
             <ListItem>
               <ListItemText
-                primary={`${match.team1.name} vs ${match.team2.name}`}
-                secondary={`Time: ${new Date(match.matchDate).toLocaleString()} — Stadium: ${match.stadium}`}
+                primary={`Round ${match.round}: ${match.team1.name} vs ${match.team2.name}`}
+                secondary={`Time: ${new Date(match.matchDate).toLocaleString()}`}
               />
             </ListItem>
             <Divider />

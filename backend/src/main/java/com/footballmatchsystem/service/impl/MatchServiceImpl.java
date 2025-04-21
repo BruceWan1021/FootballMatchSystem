@@ -1,5 +1,7 @@
 package com.footballmatchsystem.service.impl;
 
+import com.footballmatchsystem.dto.MatchDTO;
+import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchStatus;
 import com.footballmatchsystem.model.Team;
@@ -62,6 +64,33 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.save(match);
     }
 
+    @Override
+    public List<MatchDTO> getMatchesByTournamentId(Long tournamentId) {
+        List<Match> matches = matchRepository.findByTournamentId(tournamentId);
+
+        return matches.stream().map(match -> {
+            MatchDTO dto = new MatchDTO();
+            dto.setId(match.getId());
+            dto.setRound(match.getRound());
+            dto.setTeam1(toTeamDTO(match.getTeam1()));
+            dto.setTeam2(toTeamDTO(match.getTeam2()));
+            dto.setScore1(match.getScore1());
+            dto.setScore2(match.getScore2());
+            dto.setMatchDate(match.getMatchDate());
+            dto.setStatus(match.getStatus());
+            dto.setStadium(match.getTeam1().getHomeStadium()); // 默认使用 team1 主场
+            return dto;
+        }).toList();
+    }
+
+    private TeamDTO toTeamDTO(Team team) {
+        if (team == null) return null;
+        TeamDTO dto = new TeamDTO();
+        dto.setId(team.getId());
+        dto.setName(team.getName());
+        dto.setLogoUrl(team.getLogoUrl());
+        return dto;
+    }
 
 
 
