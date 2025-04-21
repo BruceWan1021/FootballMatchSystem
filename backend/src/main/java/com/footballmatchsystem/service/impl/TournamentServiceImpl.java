@@ -74,15 +74,26 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public Optional<TournamentDTO> updateTournament(Long id, TournamentDTO updatedDTO) {
         return tournamentRepository.findById(id).map(existing -> {
-            existing.setName(updatedDTO.getName());
-            existing.setShortName(updatedDTO.getShortName());
-            // 其他字段同步
-            Tournament updated = tournamentRepository.save(existing);
-            return TournamentMapper.toDTO(updated);
+            Tournament updatedEntity = TournamentMapper.toEntity(updatedDTO);
+
+            // 保留已有数据
+            updatedEntity.setId(existing.getId());
+            updatedEntity.setCreator(existing.getCreator());
+            updatedEntity.setCreatedAt(existing.getCreatedAt());
+
+            // 设置关联关系
+            if (updatedEntity.getContacts() != null) {
+                updatedEntity.getContacts().forEach(contact -> contact.setTournament(updatedEntity));
+            }
+
+            Tournament saved = tournamentRepository.save(updatedEntity);
+            return TournamentMapper.toDTO(saved);
         });
     }
+
 
     @Override
     public boolean deleteTournament(Long id) {

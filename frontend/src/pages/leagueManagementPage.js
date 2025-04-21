@@ -54,7 +54,7 @@ const LeagueManagementPage = () => {
       </Tabs>
 
       {tabIndex === 0 && (
-        <LeagueInfoEditor tournament={tournament} setTournament={setTournament} />
+            <LeagueInfoEditor tournament={tournament} setTournament={setTournament} />
       )}
       {tabIndex === 1 && (
         <ScheduleManager tournamentId={id} />
