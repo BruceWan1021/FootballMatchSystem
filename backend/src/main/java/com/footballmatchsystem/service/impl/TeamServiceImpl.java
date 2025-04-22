@@ -31,29 +31,28 @@ public class TeamServiceImpl implements TeamService {
     private UserTeamRoleRepository userTeamRoleRepository;
 
     @Override
+    @Transactional
     public TeamDTO createTeam(TeamDTO teamDTO) {
         Team team = TeamMapper.toEntity(teamDTO);
         team.setCreatedAt(LocalDateTime.now());
 
-        //从 SecurityContext 中获取当前用户名
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
+        String username = principal instanceof UserDetails
+                ? ((UserDetails) principal).getUsername()
+                : principal.toString();
 
-        //根据用户名获取 User 实体
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        //关联创建者
         team.setCreatedBy(user);
+
+        if (team.getContacts() != null) {
+            team.getContacts().forEach(contact -> contact.setTeam(team));
+        }
 
         Team saved = teamRepository.save(team);
         return TeamMapper.toDTO(saved);
     }
+
 
 
     @Override
@@ -71,11 +70,22 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @Transactional
     public Optional<TeamDTO> updateTeam(Long id, TeamDTO updatedDTO) {
         return teamRepository.findById(id).map(existing -> {
-            Team updated = TeamMapper.toEntity(updatedDTO);
-            updated.setId(id);
-            Team saved = teamRepository.save(updated);
+            Team updatedEntity = TeamMapper.toEntity(updatedDTO);
+
+            // 保留已有数据
+            updatedEntity.setId(existing.getId());
+            updatedEntity.setCreatedAt(existing.getCreatedAt());
+            updatedEntity.setCreatedBy(existing.getCreatedBy());
+
+            // 设置关联关系
+            if (updatedEntity.getContacts() != null) {
+                updatedEntity.getContacts().forEach(contact -> contact.setTeam(updatedEntity));
+            }
+
+            Team saved = teamRepository.save(updatedEntity);
             return TeamMapper.toDTO(saved);
         });
     }

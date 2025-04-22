@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -82,6 +83,9 @@ public class Team {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserTeamRole> userRoles = new HashSet<>();
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamContact> contacts;
 
 
     // === Getters & Setters ===
@@ -252,5 +256,13 @@ public class Team {
 
     public void setUserRoles(Set<UserTeamRole> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public List<TeamContact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<TeamContact> contacts) {
+        this.contacts = contacts;
     }
 }

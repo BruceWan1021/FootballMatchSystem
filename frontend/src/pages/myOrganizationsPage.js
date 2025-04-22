@@ -312,7 +312,7 @@ const MyOrganizationsPage = () => {
                                     <Grid item xs={12} sm={6} md={4} key={team.id}>
                                         <TeamCard
                                             team={teamCardData}
-                                            onViewDetails={() => navigate(`/teams/${teamCardData.id}`)}
+                                            onViewDetails={() => navigate(`/team-manage/${teamCardData.id}`)}
                                             elevation={3}
                                         />
                                     </Grid>

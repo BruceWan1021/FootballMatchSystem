@@ -40,7 +40,6 @@ public class TournamentMapper {
         dto.setRequiresApproval(entity.getRequiresApproval());
         dto.setRuleAttachmentUrl(entity.getRuleAttachmentUrl());
 
-        // 👇 加入联系人映射（实体 -> DTO）
         if (entity.getContacts() != null) {
             List<TournamentContactDTO> contactDTOs = entity.getContacts().stream()
                     .map(contact -> {

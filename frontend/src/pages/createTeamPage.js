@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container } from '@mui/material';
-import CreateTeamForm from '../components/createTeamForm';
+import CreateTeamForm from '../components/teamForm';
 
 const CreateTeamPage = () => {
   return (

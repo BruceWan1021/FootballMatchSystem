@@ -20,6 +20,7 @@ import ScheduleMatchPage from "./pages/scheduleMatchPage";
 import TeamsPage from "./pages/teamPage";
 import MyOrganizationsPage from "./pages/myOrganizationsPage";
 import LeagueManagementPage from "./pages/leagueManagementPage";
+import TeamManagementPage from "./pages/teamManagementPage";
 
 const App = () => {
   const queryClient = new QueryClient({
@@ -65,6 +66,7 @@ const App = () => {
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/my-organization" element={<MyOrganizationsPage />} />
           <Route path="/league-manage/:id" element={<LeagueManagementPage />} />
+          <Route path="/team-manage/:id" element={<TeamManagementPage />} />
         </Routes>
         <Footer />
       </BrowserRouter>
