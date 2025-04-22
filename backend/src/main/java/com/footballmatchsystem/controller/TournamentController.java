@@ -96,7 +96,6 @@ public class TournamentController {
             @PathVariable Long id,
             Authentication authentication) {
 
-        // ✅ 检查用户是否登录
         if (authentication == null || authentication.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
@@ -107,7 +106,6 @@ public class TournamentController {
 
         String username = authentication.getName();
 
-        // ✅ 校验权限
         boolean authorized = tournamentService.isAdminOrCreator(id, username);
         if (!authorized) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

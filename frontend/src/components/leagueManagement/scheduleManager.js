@@ -21,6 +21,7 @@ const ScheduleManager = ({ tournamentId }) => {
       }
 
       const data = await res.json();
+      console.log(data)
       setMatches(data);
     } catch (err) {
       console.error(err);
@@ -35,7 +36,7 @@ const ScheduleManager = ({ tournamentId }) => {
 
   const regenerateSchedule = async () => {
     const token = sessionStorage.getItem("authToken");
-    const res = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/generate-schedule`, {
+    const res = await fetch(`http://localhost:8080/api/schedule/tournaments/${tournamentId}/generate-knockout`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` }
     });

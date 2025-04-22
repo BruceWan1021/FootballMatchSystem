@@ -9,8 +9,7 @@ import java.util.List;
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
     List<Match> findAll();
-
     List<Match> findByStatus(MatchStatus status);
     List<Match> findByTournamentId(Long tournamentId);
-
+    List<Match> findByTournamentIdAndStatus(Long id, MatchStatus completed);
 }

@@ -7,7 +7,6 @@ import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.Tournament;
 
 public class MatchMapper {
-
     public static MatchDTO toDTO(Match match) {
         MatchDTO dto = new MatchDTO();
         dto.setId(match.getId());

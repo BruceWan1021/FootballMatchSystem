@@ -3,17 +3,14 @@ package com.footballmatchsystem.controller;
 import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.model.Match;
-import com.footballmatchsystem.model.UserTournamentRole;
 import com.footballmatchsystem.service.MatchService;
 import com.footballmatchsystem.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/matches")

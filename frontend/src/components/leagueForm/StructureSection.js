@@ -1,7 +1,7 @@
 import React from "react";
-import { 
-  Grid, Typography, TextField, FormControl, 
-  InputLabel, Select, MenuItem, Checkbox, ListItemText,  FormHelperText  
+import {
+  Grid, Typography, TextField, FormControl,
+  InputLabel, Select, MenuItem, Checkbox, ListItemText, FormHelperText
 } from "@mui/material";
 
 const EQUIPMENT_OPTIONS = [
@@ -18,7 +18,7 @@ const EQUIPMENT_OPTIONS = [
   "Printed Roster",
   "Medical Kit",
   "Team Flag"
-];  
+];
 
 const AWARD_OPTIONS = [
   "Champion",
@@ -113,13 +113,13 @@ const StructureSection = ({ form, errors, handleChange }) => {
             value={form.matchFormat}
             onChange={handleChange}
           >
-            <MenuItem value="Single_Round_Robin">Single Round Robin</MenuItem>
-            <MenuItem value="Double_Round_Robin">Double Round Robin</MenuItem>
-            <MenuItem value="Single_Elimination">Single Elimination</MenuItem>
-            <MenuItem value="Group + Knockout">Group + Knockout</MenuItem>
-            <MenuItem value="League + Playoffs">League + Playoffs</MenuItem>
-            <MenuItem value="Swiss_System">Swiss System</MenuItem>
-            <MenuItem value="Custom">Custom Format</MenuItem>
+            <MenuItem value="SINGLE_ROUND_ROBIN">Single Round Robin</MenuItem>
+            <MenuItem value="DOUBLE_ROUND_ROBIN">Double Round Robin</MenuItem>
+            <MenuItem value="SINGLE_ELIMINATION">Single Elimination</MenuItem>
+            <MenuItem value="GROUP_KNOCKOUT">Group + Knockout</MenuItem>
+            <MenuItem value="LEAGUE_PLAYOFFS">League + Playoffs</MenuItem>
+            <MenuItem value="SWISS_SYSTEM">Swiss System</MenuItem>
+            <MenuItem value="CUSTOM">Custom</MenuItem>
           </Select>
           <FormHelperText>Select the tournament structure</FormHelperText>
         </FormControl>

@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import LeagueInfoEditor from "../components/leagueManagement/leagueInforEditor";
 import ScheduleManager from "../components/leagueManagement/scheduleManager";
 import TeamApprovalList from "../components/leagueManagement/teamApprovalList";
+import BracketView from "../components/leagueManagement/bracketView";
 
 const LeagueManagementPage = () => {
   const { id } = useParams(); // tournamentId
@@ -58,6 +59,7 @@ const LeagueManagementPage = () => {
         <Tab label="Edit Info" />
         <Tab label="Schedule" />
         <Tab label="Team Approval" />
+        <Tab label="Bracket View" />
       </Tabs>
 
       {tabIndex === 0 && (
@@ -72,6 +74,8 @@ const LeagueManagementPage = () => {
       )}
       {tabIndex === 2 && (
         <TeamApprovalList tournamentId={id} />
+      )}
+      {tabIndex === 3 && (<BracketView tournamentId={id} />
       )}
 
       <Snackbar

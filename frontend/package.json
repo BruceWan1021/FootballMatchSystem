@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "@mui/icons-material": "^6.4.4",
     "@mui/material": "^6.4.4",
     "@mui/x-date-pickers": "^7.28.3",
@@ -13,11 +14,16 @@
     "@tanstack/react-query-devtools": "^5.66.3",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
+    "cytoscape": "^3.31.2",
     "dayjs": "^1.11.13",
+    "framer-motion": "^12.7.4",
     "react": "^19.0.0",
+    "react-brackets": "^0.4.7",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1",
+    "react-svg-pan-zoom": "^3.13.1",
+    "styled-components": "^4.4.1",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
