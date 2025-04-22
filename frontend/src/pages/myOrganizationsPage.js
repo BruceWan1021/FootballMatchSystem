@@ -3,9 +3,10 @@ import { Container, Typography, Tabs, Tab, Grid, CircularProgress, Box, Paper, B
 import { SportsSoccer, Groups } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import LeagueCard from "../components/leagueCard";
+import TeamCard from "../components/teamCard";
 
 const MyOrganizationsPage = () => {
-    const [tab, setTab] = useState(0);  
+    const [tab, setTab] = useState(0);
     const [tournaments, setTournaments] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,7 +31,7 @@ const MyOrganizationsPage = () => {
 
                 const dataTournaments = await resTournaments.json();
                 const dataTeams = await resTeams.json();
-
+                console.log(dataTeams)
                 setTournaments(dataTournaments);
                 setTeams(dataTeams);
             } catch (err) {
@@ -46,7 +47,7 @@ const MyOrganizationsPage = () => {
     const handleTabChange = (event, newValue) => {
         setTab(newValue);
     };
-    
+
 
     if (loading) {
         return (
@@ -309,9 +310,9 @@ const MyOrganizationsPage = () => {
 
                                 return (
                                     <Grid item xs={12} sm={6} md={4} key={team.id}>
-                                        <LeagueCard
-                                            league={teamCardData}
-                                            onViewDetails={() => navigate(`/team/${team.id}`)}
+                                        <TeamCard
+                                            team={teamCardData}
+                                            onViewDetails={() => navigate(`/teams/${teamCardData.id}`)}
                                             elevation={3}
                                         />
                                     </Grid>

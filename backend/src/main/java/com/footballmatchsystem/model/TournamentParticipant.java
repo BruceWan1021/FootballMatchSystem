@@ -1,6 +1,10 @@
 package com.footballmatchsystem.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 public class TournamentParticipant {
@@ -17,6 +21,14 @@ public class TournamentParticipant {
 
     @Enumerated(EnumType.STRING)
     private JoinStatus status = JoinStatus.PENDING;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
 
     // Getters and Setters
@@ -51,6 +63,22 @@ public class TournamentParticipant {
 
     public void setStatus(JoinStatus status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public enum JoinStatus {
