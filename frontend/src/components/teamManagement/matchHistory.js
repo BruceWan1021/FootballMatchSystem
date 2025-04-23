@@ -1,11 +1,30 @@
 import React, { useEffect, useState } from "react";
 import {
-  Paper, Typography, CircularProgress, Alert, Box,
-  Table, TableHead, TableRow, TableCell, TableBody
+  Paper,
+  Typography,
+  CircularProgress,
+  Alert,
+  Box,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Chip,
+  Avatar,
+  useTheme
 } from "@mui/material";
 import dayjs from "dayjs";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import EventIcon from "@mui/icons-material/Event";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import TournamentIcon from "@mui/icons-material/EmojiEvents";
 
 const MatchHistory = ({ teamId }) => {
+  const theme = useTheme();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +34,7 @@ const MatchHistory = ({ teamId }) => {
       setLoading(true);
       setError(null);
       const token = sessionStorage.getItem("authToken");
-      const res = await fetch(`http://localhost:8080/api/teams/${teamId}/matches`, {
+      const res = await fetch(`http://localhost:8080/api/matches/teams/${teamId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -30,42 +49,171 @@ const MatchHistory = ({ teamId }) => {
   };
 
   useEffect(() => {
-    fetchMatches();
+    if (teamId) {
+      fetchMatches();
+    }
   }, [teamId]);
 
+  const getStatusChip = (status, isWinner) => {
+    const statusMap = {
+      COMPLETED: {
+        label: isWinner ? "Won" : "Lost",
+        color: isWinner ? "success" : "error",
+        icon: <EmojiEventsIcon fontSize="small" />
+      },
+      SCHEDULED: {
+        label: "Upcoming",
+        color: "info",
+        icon: <ScheduleIcon fontSize="small" />
+      },
+      CANCELLED: {
+        label: "Cancelled",
+        color: "warning",
+        icon: <CancelIcon fontSize="small" />
+      },
+      DEFAULT: {
+        label: status,
+        color: "default",
+        icon: <SportsSoccerIcon fontSize="small" />
+      }
+    };
+
+    const statusConfig = statusMap[status] || statusMap.DEFAULT;
+    return (
+      <Chip
+        label={statusConfig.label}
+        color={statusConfig.color}
+        icon={statusConfig.icon}
+        size="small"
+        variant="outlined"
+        sx={{ ml: 1 }}
+      />
+    );
+  };
+
+  const getScoreDisplay = (match) => {
+    if (match.status === "CANCELLED") {
+      return "Cancelled";
+    }
+    if (match.status === "SCHEDULED" && dayjs(match.matchDate).isAfter(dayjs())) {
+      return "vs";
+    }
+    return `${match.score1} - ${match.score2}`;
+  };
+
+  const isTeam1Winner = (match) => {
+    return match.score1 > match.score2;
+  };
+
+  const getMatchResultStyle = (match) => {
+    if (match.status !== "COMPLETED") return {};
+    
+    return {
+      backgroundColor: isTeam1Winner(match) 
+        ? theme.palette.success.light + "33" 
+        : theme.palette.error.light + "33",
+      fontWeight: "bold"
+    };
+  };
+
   return (
-    <Paper sx={{ p: 4, borderRadius: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        Match History
-      </Typography>
+    <Paper
+      sx={{
+        p: 4,
+        borderRadius: 2,
+        boxShadow: theme.shadows[3],
+        backgroundColor: theme.palette.background.paper
+      }}
+    >
+      <Box display="flex" alignItems="center" mb={3}>
+        <SportsSoccerIcon color="primary" sx={{ mr: 1, fontSize: 32 }} />
+        <Typography variant="h5" component="h2">
+          Match History
+        </Typography>
+      </Box>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" p={2}>
-          <CircularProgress />
+        <Box display="flex" justifyContent="center" p={4}>
+          <CircularProgress size={60} thickness={4} />
         </Box>
       ) : error ? (
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
       ) : matches.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          No matches found.
-        </Typography>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          p={4}
+        >
+          <EventIcon color="disabled" sx={{ fontSize: 48, mb: 2 }} />
+          <Typography variant="body1" color="text.secondary">
+            No matches recorded yet
+          </Typography>
+        </Box>
       ) : (
-        <Table>
+        <Table sx={{ minWidth: 650 }} aria-label="match history table">
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Opponent</TableCell>
-              <TableCell>Score</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Date & Time</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Matchup</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Location</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>Score</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Tournament</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {matches.map((match) => (
-              <TableRow key={match.id}>
-                <TableCell>{dayjs(match.matchDate).format("YYYY-MM-DD HH:mm")}</TableCell>
-                <TableCell>{match.opponent}</TableCell>
-                <TableCell>{match.teamScore} - {match.opponentScore}</TableCell>
-                <TableCell>{match.status}</TableCell>
+              <TableRow
+                key={match.id}
+                hover
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  ...getMatchResultStyle(match)
+                }}
+              >
+                <TableCell>
+                  <Box display="flex" alignItems="center">
+                    <EventIcon color="action" sx={{ mr: 1 }} />
+                    {dayjs(match.matchDate).format("MMM D, YYYY h:mm A")}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box display="flex" alignItems="center">
+                    <Avatar
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        mr: 1,
+                        bgcolor: theme.palette.secondary.main
+                      }}
+                    >
+                      <SportsSoccerIcon sx={{ fontSize: 14 }} />
+                    </Avatar>
+                    {`${match.team1.name} vs ${match.team2.name}`}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box display="flex" alignItems="center">
+                    <LocationOnIcon color="action" sx={{ mr: 1 }} />
+                    {match.stadium || "TBD"}
+                  </Box>
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                  {getScoreDisplay(match)}
+                </TableCell>
+                <TableCell>
+                  <Box display="flex" alignItems="center">
+                    <TournamentIcon color="action" sx={{ mr: 1 }} />
+                    {match.tournament?.name || "N/A"}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  {getStatusChip(match.status, isTeam1Winner(match))}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

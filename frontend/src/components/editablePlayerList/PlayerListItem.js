@@ -10,7 +10,7 @@ import { PlayerAvatar } from "./PlayerAvatar";
 import { PlayerInfoDisplay } from "./PlayerInfoDisplay";
 import { PlayerEditorForm } from "./PlayerEditorForm";
 import { RoleEditor } from "./RoleEditor";
-import { formatRole, getRoleColor } from "./roleUtils"; 
+import { formatRole, getRoleColor } from "./roleUtils";
 
 export const PlayerListItem = ({
   player,
@@ -22,7 +22,9 @@ export const PlayerListItem = ({
   onSaveEdit,
   onStartRoleEdit,
   onSaveRoleEdit,
-  onCancelRoleEdit
+  onCancelRoleEdit,
+  editData,
+  onEditChange
 }) => {
   const userId = player.playerProfileDTO?.userId;
   const isCaptain = role === 'captain';
@@ -56,8 +58,8 @@ export const PlayerListItem = ({
           <Grid item xs={12} sm={isEditing ? 12 : 8}>
             {isEditing ? (
               <PlayerEditorForm
-                data={player}
-                onChange={(field, value) => {/* handle change */ }}
+                data={editData}
+                onChange={onEditChange}
               />
             ) : (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -65,6 +67,7 @@ export const PlayerListItem = ({
                 <PlayerInfoDisplay player={player} />
               </Box>
             )}
+
           </Grid>
 
           <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>

@@ -72,4 +72,12 @@ public class ProfileController {
         return ResponseEntity.ok(players);
     }
 
+    @PutMapping("/player/{userId}")
+    public ResponseEntity<Void> updatePlayerProfile(
+            @PathVariable Long userId,
+            @RequestBody PlayerProfileDTO dto) {
+        playerProfileService.updatePlayerProfile(userId, dto);
+        return ResponseEntity.ok().build();
+    }
+
 }

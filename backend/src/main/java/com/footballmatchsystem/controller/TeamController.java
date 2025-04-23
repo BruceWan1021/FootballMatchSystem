@@ -3,6 +3,7 @@ package com.footballmatchsystem.controller;
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.dto.TeamMemberDTO;
 import com.footballmatchsystem.dto.TournamentDTO;
+import com.footballmatchsystem.model.UserTeamRole;
 import com.footballmatchsystem.service.TeamService;
 import com.footballmatchsystem.service.UserService;
 import com.footballmatchsystem.service.UserTeamRoleService;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/teams")
@@ -72,6 +74,27 @@ public class TeamController {
     @GetMapping("/{id}/members")
     public ResponseEntity<List<TeamMemberDTO>> getTeamMembers(@PathVariable Long id) {
         return ResponseEntity.ok(userTeamRoleService.getTeamMembers(id));
+    }
+
+    @PutMapping("/{teamId}/members/{userId}/role")
+    public ResponseEntity<?> updateTeamRole(
+            @PathVariable Long teamId,
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> body) {
+
+        String roleStr = body.get("role");
+
+        if (roleStr == null) {
+            return ResponseEntity.badRequest().body("Role is required.");
+        }
+
+        try {
+            UserTeamRole.TeamRole role = UserTeamRole.TeamRole.valueOf(roleStr.toUpperCase());
+            userTeamRoleService.updateUserRoleInTeam(userId, teamId, role);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid role value.");
+        }
     }
 
     @PostMapping("/{id}/join")

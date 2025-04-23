@@ -8,6 +8,7 @@ import com.footballmatchsystem.repository.TeamRepository;
 import com.footballmatchsystem.repository.UserRepository;
 import com.footballmatchsystem.repository.UserTeamRoleRepository;
 import com.footballmatchsystem.service.UserTeamRoleService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -87,5 +88,17 @@ public class UserTeamRoleServiceImpl implements UserTeamRoleService {
         userTeamRoleRepository.save(role);
 
         return "Successfully joined the team.";
+    }
+
+    @Override
+    public void updateUserRoleInTeam(Long userId, Long teamId, UserTeamRole.TeamRole newRole) {
+        Optional<UserTeamRole> existing = userTeamRoleRepository.findByUserIdAndTeamId(userId, teamId);
+        if (existing.isPresent()) {
+            UserTeamRole userTeamRole = existing.get();
+            userTeamRole.setRole(newRole);
+            userTeamRoleRepository.save(userTeamRole);
+        } else {
+            throw new EntityNotFoundException("User is not a member of this team.");
+        }
     }
 }

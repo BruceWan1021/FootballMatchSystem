@@ -1,6 +1,7 @@
 package com.footballmatchsystem.service;
 
 import com.footballmatchsystem.dto.TeamMemberDTO;
+import com.footballmatchsystem.model.UserTeamRole;
 
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface UserTeamRoleService {
     void removeUserFromTeam(Long userId, Long teamId);
 
     String joinTeamByUsername(Long id, String username);
+
+    void updateUserRoleInTeam(Long userId, Long teamId, UserTeamRole.TeamRole role);
 }

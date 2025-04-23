@@ -2,6 +2,7 @@ package com.footballmatchsystem.service.impl;
 
 import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.dto.TeamDTO;
+import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchStatus;
 import com.footballmatchsystem.model.Team;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -95,6 +97,12 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.findById(id);
     }
 
-
+    @Override
+    public List<MatchDTO> getMatchesByTeamId(Long id) {
+        List<Match> matches = matchRepository.findAllByTeamId(id);
+        return matches.stream()
+                .map(MatchMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 
 }

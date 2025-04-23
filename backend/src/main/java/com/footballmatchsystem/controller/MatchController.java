@@ -70,5 +70,11 @@ public class MatchController {
         return ResponseEntity.ok(matchList);
     }
 
+    @GetMapping("/teams/{id}")
+    public ResponseEntity<List<MatchDTO>> getMatchesByTeam(@PathVariable Long id) {
+        List<MatchDTO> matchList = matchService.getMatchesByTeamId(id);
+        return ResponseEntity.ok(matchList);
+    }
+
 
 }

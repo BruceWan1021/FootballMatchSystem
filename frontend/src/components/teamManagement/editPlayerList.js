@@ -1,18 +1,9 @@
 import { useState, useEffect } from "react";
-import { 
-  Paper, 
-  Typography, 
-  Divider, 
-  List,
-  Box,
-  CircularProgress,
-  Alert,
-  ListItem,
-  ListItemText
+import {
+  Paper, Typography, Divider, List, Box, CircularProgress, Alert, ListItem, ListItemText
 } from "@mui/material";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import { PlayerListItem } from "../editablePlayerList/PlayerListItem";
-import { roleColors, roleIcons } from "../editablePlayerList/roleUtils";
 
 export const EditablePlayerList = ({ teamId, onUpdate, onRoleChange }) => {
   const [players, setPlayers] = useState([]);
@@ -23,72 +14,39 @@ export const EditablePlayerList = ({ teamId, onUpdate, onRoleChange }) => {
   const [roleEditId, setRoleEditId] = useState(null);
   const [editData, setEditData] = useState({});
 
-  // Fetch players and their roles
   const fetchPlayersAndRoles = async () => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem("authToken");
 
       const [participantsRes, rolesRes] = await Promise.all([
-        fetchPlayers(teamId, token),
-        fetchRoles(teamId, token)
+        fetch(`http://localhost:8080/api/participant/teams/${teamId}/participants`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        fetch(`http://localhost:8080/api/teams/${teamId}/members`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
       ]);
 
-      if (!participantsRes.ok || !rolesRes.ok) {
-        throw new Error("Failed to load players or roles");
-      }
+      if (!participantsRes.ok || !rolesRes.ok) throw new Error("Failed to load players or roles");
 
       const participants = await participantsRes.json();
       const rolesList = await rolesRes.json();
 
-      processPlayerData(participants, rolesList);
+      const roleMap = {};
+      rolesList.forEach(member => {
+        roleMap[member.userId] = member.role;
+      });
+
+      const sorted = [...participants].sort((a, b) => (a.playerProfileDTO?.number || 999) - (b.playerProfileDTO?.number || 999));
+      setPlayers(sorted);
+      setRolesMap(roleMap);
     } catch (err) {
-      handleError(err);
+      console.error("Error fetching player data:", err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  // Helper function to fetch players
-  const fetchPlayers = async (teamId, token) => {
-    return await fetch(
-      `http://localhost:8080/api/participant/teams/${teamId}/participants`, 
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-  };
-
-  // Helper function to fetch roles
-  const fetchRoles = async (teamId, token) => {
-    return await fetch(
-      `http://localhost:8080/api/teams/${teamId}/members`, 
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-  };
-
-  // Process and sort player data
-  const processPlayerData = (participants, rolesList) => {
-    const roleMap = {};
-    rolesList.forEach(member => {
-      roleMap[member.userId] = member.role;
-    });
-
-    const sortedPlayers = [...participants].sort(sortPlayers);
-    setPlayers(sortedPlayers);
-    setRolesMap(roleMap);
-  };
-
-  // Sorting logic for players
-  const sortPlayers = (a, b) => {
-    const numA = a.playerProfileDTO?.number || 999;
-    const numB = b.playerProfileDTO?.number || 999;
-    if (numA !== numB) return numA - numB;
-    return (a.playerProfileDTO?.username || "").localeCompare(b.playerProfileDTO?.username || "");
-  };
-
-  // Error handling
-  const handleError = (err) => {
-    console.error("Error fetching player data:", err);
-    setError(err.message);
   };
 
   useEffect(() => {
@@ -97,7 +55,6 @@ export const EditablePlayerList = ({ teamId, onUpdate, onRoleChange }) => {
     }
   }, [teamId]);
 
-  // Editing handlers
   const startEditing = (player) => {
     setEditingId(player.id);
     setEditData({
@@ -118,29 +75,78 @@ export const EditablePlayerList = ({ teamId, onUpdate, onRoleChange }) => {
     setEditData({});
   };
 
-  const saveEdit = () => {
-    if (onUpdate) {
-      onUpdate(editingId, editData);
+  const saveEdit = async () => {
+    if (!editingId || !teamId) return;
+  
+    const player = players.find(p => p.id === editingId);
+    const userId = player?.playerProfileDTO?.userId;
+  
+    if (!userId) {
+      console.error("无法找到对应的 userId");
+      setError("更新失败：找不到对应用户");
+      return;
     }
-    cancelEditing();
-  };
-
-  const saveRoleEdit = (playerId, newRole) => {
-    if (onRoleChange) {
-      onRoleChange(playerId, newRole);
+  
+    try {
+      const token = sessionStorage.getItem("authToken");
+      const res = await fetch(
+        `http://localhost:8080/api/profile/player/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(editData)
+        }
+      );
+  
+      if (!res.ok) throw new Error("Failed to update player info");
+  
+      if (onUpdate) onUpdate(editingId, editData);
+      await fetchPlayersAndRoles();
+    } catch (err) {
+      console.error("Error updating player:", err);
+      setError("更新球员信息失败！");
+    } finally {
+      cancelEditing();
     }
-    setRolesMap(prev => ({
-      ...prev,
-      [playerId]: newRole
-    }));
-    setRoleEditId(null);
   };
+  
 
+  const saveRoleEdit = async (userId, newRole) => {
+    if (!userId || !teamId) return;
+  
+    try {
+      const token = sessionStorage.getItem("authToken");
+      const res = await fetch(
+        `http://localhost:8080/api/teams/${teamId}/members/${userId}/role`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ role: newRole })
+        }
+      );
+  
+      if (!res.ok) throw new Error("Failed to update role");
+  
+      if (onRoleChange) onRoleChange(userId, newRole);
+      setRolesMap(prev => ({ ...prev, [userId]: newRole }));
+    } catch (err) {
+      console.error("Error updating role:", err);
+      setError("更新角色失败！");
+    } finally {
+      setRoleEditId(null);
+    }
+  };
+  
   const handleEditChange = (field, value) => {
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Loading and error states
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={4}>
