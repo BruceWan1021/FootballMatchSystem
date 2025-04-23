@@ -1,27 +1,48 @@
-// components/SquadPlayersSection.jsx
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Avatar,
-  Grid,
-  Card,
-  CardContent,
-  Divider,
-  Chip,
-  LinearProgress,
-  Tooltip,
-  useTheme
-} from '@mui/material';
+import {  Box,  Typography,  Avatar,  Grid,  Card,  CardContent,  Divider,  Chip,  LinearProgress,Tooltip,  useTheme,Button} from '@mui/material';
 import {
   People,
   EmojiEvents as TrophyIcon,
   Equalizer as StatsIcon
 } from '@mui/icons-material';
 
-const PlayerList = ({ players }) => {
+const PlayerList = ({ players, isAdmin = false, onAction }) => {
   const theme = useTheme();
   const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
+
+  const handleApprove = async (playerId) => {
+    try {
+      const res = await fetch(`/api/players/${playerId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem("authToken")}`,
+        },
+      });
+      if (!res.ok) throw new Error('Failed to approve');
+      alert('Player approved');
+      onAction?.();
+    } catch (err) {
+      console.error(err);
+      alert('Approval failed');
+    }
+  };
+
+  const handleReject = async (playerId) => {
+    try {
+      const res = await fetch(`/api/players/${playerId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem("authToken")}`,
+        },
+      });
+      if (!res.ok) throw new Error('Failed to reject');
+      alert('Player rejected');
+      onAction?.();
+    } catch (err) {
+      console.error(err);
+      alert('Rejection failed');
+    }
+  };
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -40,8 +61,8 @@ const PlayerList = ({ players }) => {
                 transition: 'transform 0.2s',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: theme.shadows[6]
-                }
+                  boxShadow: theme.shadows[6],
+                },
               }}
             >
               <CardContent sx={{ flexGrow: 1 }}>
@@ -56,9 +77,10 @@ const PlayerList = ({ players }) => {
                     label={player.position}
                     size="small"
                     color={
-                      player.position === 'Forward' ? 'error' :
-                      player.position === 'Midfielder' ? 'warning' :
-                      player.position === 'Defender' ? 'info' : 'success'
+                      player.position === 'Forward' ? 'error'
+                        : player.position === 'Midfielder' ? 'warning'
+                        : player.position === 'Defender' ? 'info'
+                        : 'success'
                     }
                   />
                 </Box>
@@ -70,7 +92,7 @@ const PlayerList = ({ players }) => {
                     alignItems: 'center',
                     textAlign: 'center',
                     gap: 1,
-                    mb: 2
+                    mb: 2,
                   }}
                 >
                   <Avatar
@@ -80,7 +102,7 @@ const PlayerList = ({ players }) => {
                       bgcolor: theme.palette.primary.light,
                       mb: 1,
                       fontSize: '2rem',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
                     }}
                   >
                     {player.number}
@@ -88,6 +110,14 @@ const PlayerList = ({ players }) => {
                   <Typography variant="h6" fontWeight="bold">
                     {player.name}
                   </Typography>
+                  <Chip
+                    label={player.status}
+                    size="small"
+                    color={
+                      player.status === 'APPROVED' ? 'success' :
+                        player.status === 'PENDING' ? 'warning' : 'default'
+                    }
+                  />
                 </Box>
 
                 <Divider sx={{ my: 1 }} />
@@ -119,13 +149,34 @@ const PlayerList = ({ players }) => {
                       mb: 2,
                       bgcolor: theme.palette.grey[200],
                       '& .MuiLinearProgress-bar': {
-                        bgcolor: player.rating > 8 ? theme.palette.success.main : 
-                                 player.rating > 7 ? theme.palette.primary.main : 
-                                 theme.palette.warning.main
+                        bgcolor: player.rating > 8 ? theme.palette.success.main :
+                          player.rating > 7 ? theme.palette.primary.main :
+                            theme.palette.warning.main
                       }
                     }}
                   />
                 </Tooltip>
+
+                {isAdmin && player.status === 'PENDING' && (
+                  <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="success"
+                      onClick={() => handleApprove(player.id)}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleReject(player.id)}
+                    >
+                      Reject
+                    </Button>
+                  </Box>
+                )}
               </CardContent>
 
               <Box
@@ -135,7 +186,7 @@ const PlayerList = ({ players }) => {
                   display: 'flex',
                   justifyContent: 'center',
                   flexWrap: 'wrap',
-                  gap: 1
+                  gap: 1,
                 }}
               >
                 <Chip
@@ -144,7 +195,7 @@ const PlayerList = ({ players }) => {
                   size="small"
                   color={
                     player.rating > 8 ? 'success' :
-                    player.rating > 7 ? 'primary' : 'warning'
+                      player.rating > 7 ? 'primary' : 'warning'
                   }
                 />
                 {player.goals > 5 && (

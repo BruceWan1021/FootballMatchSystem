@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Paper,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Chip,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Container, Typography, Grid, Paper, TextField, Select, MenuItem, InputLabel, FormControl, Chip, CircularProgress, } from "@mui/material";
+import { Link } from "react-router-dom";
+
 
 const statusColor = {
   UPCOMING: "info",
@@ -114,29 +103,34 @@ const MatchesPage = () => {
         <Grid container spacing={3}>
           {filtered.map((match) => (
             <Grid item xs={12} sm={6} md={4} key={match.id}>
-              <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    {match.title}
+              <Link
+                to={`/matches/${match.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Paper elevation={3} sx={{ p: 2, borderRadius: 2, cursor: "pointer", '&:hover': { boxShadow: 6 } }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                    <Typography variant="subtitle2" fontWeight="bold">
+                      {match.title}
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={match.status}
+                      color={statusColor[match.status] || "default"}
+                    />
+                  </Box>
+                  <Typography variant="body1" fontWeight="bold">
+                    {match.teamA} vs {match.teamB}
                   </Typography>
-                  <Chip
-                    size="small"
-                    label={match.status}
-                    color={statusColor[match.status] || "default"}
-                  />
-                </Box>
-                <Typography variant="body1" fontWeight="bold">
-                  {match.teamA} vs {match.teamB}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  📅 {match.date} ⏰ {match.time}
-                </Typography>
-                {match.status === "COMPLETED" && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Final Score: <strong>{match.score}</strong>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    📅 {match.date} ⏰ {match.time}
                   </Typography>
-                )}
-              </Paper>
+                  {match.status === "COMPLETED" && (
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Final Score: <strong>{match.score}</strong>
+                    </Typography>
+                  )}
+                </Paper>
+              </Link>
             </Grid>
           ))}
         </Grid>

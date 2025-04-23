@@ -38,7 +38,6 @@ public class PlayerProfile {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ✅ 自动设置创建时间
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

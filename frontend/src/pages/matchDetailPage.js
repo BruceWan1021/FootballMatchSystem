@@ -1,54 +1,74 @@
-import React from "react";
-import { Box, Container, Typography, Paper, Grid, Chip, Divider, Avatar, Button } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Box, Container, Typography, Paper, Grid, Chip, Divider, Avatar, CircularProgress, Alert } from "@mui/material";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MatchEvent from "../components/matchEvent";
 
-const mockMatch = {
-  id: 1,
-  title: "Spring Cup - Group A",
-  status: "COMPLETED",
-  date: "2025-04-20",
-  time: "16:00",
-  location: "Main Campus Stadium A",
-  tournament: "2025 Spring Cup",
-  teamA: {
-    name: "Computer Science Team",
-    score: 2,
-    players: ["Alice", "Bob", "Charlie"]
-  },
-  teamB: {
-    name: "Information Engineering Team",
-    score: 1,
-    players: ["David", "Eve", "Frank"]
-  },
-  events: [
-    { time: "55'", type: "goal", team: "A", player: "Andrei Santos" },
-    { time: "60'", type: "goal", team: "A", player: "Bakawa" },
-    { time: "62'", type: "goal", team: "B", player: "Torres" },
-    { time: "73'", type: "goal", team: "A", player: "Emeka" },
-    { time: "89'", type: "goal", team: "A", player: "Amiyah" },
-    { time: "90+6'", type: "penalty", team: "B", player: "Mikautadze" },
-  ]
-};
-
 const MatchDetailPage = () => {
-  const match = mockMatch;
+  const { id } = useParams();
+  const [match, setMatch] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchMatch = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/matches/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch match data");
+        const data = await res.json();
+        setMatch(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMatch();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
+  if (!match) return null;
 
   return (
     <Container maxWidth="md" sx={{ mt: 5, mb: 8 }}>
-
       <Paper sx={{ p: 3, borderRadius: 2 }} elevation={4}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
-          {match.title}
+          {match.title || match.tournament?.name}
         </Typography>
 
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
-          <Chip label={match.status} color={match.status === "COMPLETED" ? "success" : "info"} />
-          <Chip label={`📅 ${match.date}`} />
-          <Chip label={`⏰ ${match.time}`} />
-          <Chip label={`📍 ${match.location}`} />
-          <Chip label={`🏆 ${match.tournament}`} />
+          {match.status && (
+            <Chip
+              label={match.status}
+              color={match.status === "COMPLETED" ? "success" : "info"}
+            />
+          )}
+          {match.matchDate && (
+            <>
+              <Chip label={`📅 ${match.matchDate.split("T")[0]}`} />
+              {match.matchDate.split("T")[1] && (
+                <Chip label={`⏰ ${match.matchDate.split("T")[1].slice(0, 5)}`} />
+              )}
+            </>
+          )}
+          {match.location && (
+            <Chip label={`📍 ${match.location}`} />
+          )}
+          {match.tournament?.name && (
+            <Chip label={`🏆 ${match.tournament.name}`} />
+          )}
         </Box>
 
         <Divider sx={{ my: 2 }} />
@@ -57,20 +77,17 @@ const MatchDetailPage = () => {
           <Grid item xs={5}>
             <Box textAlign="center">
               <Avatar sx={{ bgcolor: "primary.main", mx: "auto", width: 56, height: 56 }}>
-                {match.teamA.name.charAt(0)}
+                {match.team1?.name?.charAt(0) || "A"}
               </Avatar>
               <Typography variant="subtitle1" fontWeight="bold">
-                {match.teamA.name}
+                {match.team1?.name || "Team A"}
               </Typography>
-              {match.teamA.players.map((p, i) => (
-                <Typography key={i} variant="body2">{p}</Typography>
-              ))}
             </Box>
           </Grid>
 
           <Grid item xs={2} textAlign="center">
             <Typography variant="h4" fontWeight="bold">
-              {match.teamA.score} : {match.teamB.score}
+              {match.score1 ?? 0} : {match.score2 ?? 0}
             </Typography>
             <SportsSoccerIcon fontSize="large" color="primary" />
           </Grid>
@@ -78,14 +95,11 @@ const MatchDetailPage = () => {
           <Grid item xs={5}>
             <Box textAlign="center">
               <Avatar sx={{ bgcolor: "secondary.main", mx: "auto", width: 56, height: 56 }}>
-                {match.teamB.name.charAt(0)}
+                {match.team2?.name?.charAt(0) || "B"}
               </Avatar>
               <Typography variant="subtitle1" fontWeight="bold">
-                {match.teamB.name}
+                {match.team2?.name || "Team B"}
               </Typography>
-              {match.teamB.players.map((p, i) => (
-                <Typography key={i} variant="body2">{p}</Typography>
-              ))}
             </Box>
           </Grid>
         </Grid>
@@ -96,7 +110,7 @@ const MatchDetailPage = () => {
           Match Events
         </Typography>
 
-        <MatchEvent events={match.events} />
+        <MatchEvent events={match.events || []} />
       </Paper>
     </Container>
   );

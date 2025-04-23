@@ -5,6 +5,7 @@ import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MatchService {
 
@@ -22,5 +23,6 @@ public interface MatchService {
 
     List<MatchDTO> getMatchesByTournamentId(Long tournamentId);
 
+    Optional<Match> getMatchById(Long id);
 
 }

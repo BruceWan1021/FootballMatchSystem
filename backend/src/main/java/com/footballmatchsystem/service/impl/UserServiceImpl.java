@@ -109,8 +109,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getCurrentUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
-        Team team = teamRepository.findByCaptainId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Team not found: " + username));
+
         return UserMapper.toDto(user);
     }
 

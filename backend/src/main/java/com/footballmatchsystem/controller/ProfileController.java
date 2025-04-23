@@ -3,12 +3,14 @@ package com.footballmatchsystem.controller;
 import com.footballmatchsystem.dto.PlayerProfileDTO;
 import com.footballmatchsystem.dto.RefereeProfileDTO;
 import com.footballmatchsystem.dto.UserDTO;
-import com.footballmatchsystem.mapper.UserMapper;
+import com.footballmatchsystem.service.PlayerProfileService;
 import com.footballmatchsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -16,6 +18,8 @@ public class ProfileController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private PlayerProfileService playerProfileService;
 
     public ProfileController(UserService userService) {
         this.userService = userService;
@@ -59,6 +63,13 @@ public class ProfileController {
         }
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/player/{teamId}")
+    public ResponseEntity<List<PlayerProfileDTO>> getPlayersByTeam(
+            @PathVariable Long teamId) {
+        List<PlayerProfileDTO> players = playerProfileService.findByTeamId(teamId);
+        return ResponseEntity.ok(players);
     }
 
 }

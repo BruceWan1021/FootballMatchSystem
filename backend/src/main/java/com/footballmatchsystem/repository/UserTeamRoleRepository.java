@@ -1,5 +1,7 @@
 package com.footballmatchsystem.repository;
 
+import com.footballmatchsystem.model.Team;
+import com.footballmatchsystem.model.User;
 import com.footballmatchsystem.model.UserTeamRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -22,4 +24,6 @@ public interface UserTeamRoleRepository extends JpaRepository<UserTeamRole, Long
 
     // 获取队伍中所有某种角色（如所有 captain、所有 player）
     List<UserTeamRole> findByTeamIdAndRole(Long teamId, String role);
+
+    boolean existsByUserAndTeam(User user, Team team);
 }

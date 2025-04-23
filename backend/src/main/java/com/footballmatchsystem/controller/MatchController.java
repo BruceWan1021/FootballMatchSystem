@@ -4,7 +4,6 @@ import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.service.MatchService;
-import com.footballmatchsystem.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,7 @@ public class MatchController {
 
     @Autowired
     private MatchService matchService;
-    @Autowired
-    private TournamentService tournamentService;
+
 
     @GetMapping("/all")
     public ResponseEntity<List<MatchDTO>> getMatches() {
@@ -29,6 +27,15 @@ public class MatchController {
                 .toList();
         return ResponseEntity.ok(matches);
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<MatchDTO> getMatchDetails(@PathVariable Long id) {
+        return matchService.getMatchById(id)
+                .map(MatchMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 
     @GetMapping("/scheduled")
     public ResponseEntity<List<MatchDTO>> getScheduleMatches() {
@@ -62,4 +69,6 @@ public class MatchController {
         List<MatchDTO> matchList = matchService.getMatchesByTournamentId(id);
         return ResponseEntity.ok(matchList);
     }
+
+
 }

@@ -5,17 +5,15 @@ import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchStatus;
 import com.footballmatchsystem.model.Team;
-import com.footballmatchsystem.model.Tournament;
 import com.footballmatchsystem.repository.MatchRepository;
 import com.footballmatchsystem.repository.TeamRepository;
 import com.footballmatchsystem.repository.TournamentRepository;
 import com.footballmatchsystem.service.MatchService;
-import com.footballmatchsystem.util.RoundRobinScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -90,6 +88,11 @@ public class MatchServiceImpl implements MatchService {
         dto.setName(team.getName());
         dto.setLogoUrl(team.getLogoUrl());
         return dto;
+    }
+
+    @Override
+    public Optional<Match> getMatchById(Long id) {
+        return matchRepository.findById(id);
     }
 
 

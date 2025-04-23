@@ -5,7 +5,8 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import TeamInfoEditor from "../components/teamManagement/teamInfoEditor.js";
-import PlayerList from "../components/teamManagement/playerList";
+import PlayerList from "../components/teamManagement/approvalPlayerList.js";
+import EditablePlayerList from "../components/teamManagement/editPlayerList.js";
 import MatchHistory from "../components/teamManagement/matchHistory";
 import TeamStats from "../components/teamManagement/teamStats";
 
@@ -58,6 +59,7 @@ const TeamManagementPage = () => {
 
       <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 3 }}>
         <Tab label="Edit Info" />
+        <Tab label="Approve Players" />
         <Tab label="Players" />
         <Tab label="Match History" />
         <Tab label="Statistics" />
@@ -74,9 +76,12 @@ const TeamManagementPage = () => {
         <PlayerList teamId={id} />
       )}
       {tabIndex === 2 && (
-        <MatchHistory teamId={id} />
+        <EditablePlayerList teamId={id} />
       )}
       {tabIndex === 3 && (
+        <MatchHistory teamId={id} />
+      )}
+      {tabIndex === 4 && (
         <TeamStats teamId={id} />
       )}
 
