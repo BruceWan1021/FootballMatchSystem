@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import TeamInfoEditor from "../components/teamManagement/teamInfoEditor.js";
 import PlayerList from "../components/teamManagement/approvalPlayerList.js";
 import EditablePlayerList from "../components/teamManagement/editPlayerList.js";
-import MatchHistory from "../components/teamManagement/matchHistory";
+import MatchHistory from "../components/teamManagement/matchList.js";
 import TeamStats from "../components/teamManagement/teamStats";
 
 const TeamManagementPage = () => {
@@ -61,7 +61,7 @@ const TeamManagementPage = () => {
         <Tab label="Edit Info" />
         <Tab label="Approve Players" />
         <Tab label="Players" />
-        <Tab label="Match History" />
+        <Tab label="Match" />
         <Tab label="Statistics" />
       </Tabs>
 

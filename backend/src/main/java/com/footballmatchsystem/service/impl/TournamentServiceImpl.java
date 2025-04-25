@@ -5,16 +5,13 @@ import com.footballmatchsystem.mapper.TournamentMapper;
 import com.footballmatchsystem.model.*;
 import com.footballmatchsystem.repository.*;
 import com.footballmatchsystem.service.TournamentService;
-import com.footballmatchsystem.util.RoundRobinScheduler;
 import jakarta.transaction.Transactional;
-import org.hibernate.mapping.Join;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -167,50 +164,50 @@ public class TournamentServiceImpl implements TournamentService {
                 userTournamentRoleRepository.existsByUserIdAndTournamentIdAndRole(userId, tournamentId, UserTournamentRole.TournamentRole.ORGANIZER);
     }
 
-    @Override
-    public List<Match> generateSchedule(Long tournamentId) {
-        Tournament tournament = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new RuntimeException("Tournament not found"));
-
-        if (tournament.getLeagueStart() == null) {
-            throw new IllegalArgumentException("League start date is not set.");
-        }
-
-        List<Team> teams = participantRepository.findApprovedTeamsByTournamentId(tournamentId);
-        if (teams.size() < 2) {
-            throw new IllegalStateException("At least two teams are required to generate a schedule.");
-        }
-
-        List<RoundRobinScheduler.Team> schedulerTeams = teams.stream()
-                .map(team -> new RoundRobinScheduler.Team(
-                        Math.toIntExact(team.getId()),
-                        team.getName(),
-                        team.getHomeStadium()))
-                .toList();
-
-        List<RoundRobinScheduler.Match> generatedMatches = RoundRobinScheduler.generateRoundRobinSchedule(
-                schedulerTeams,
-                tournament.getLeagueStart().toLocalDate(),
-                1,
-                true
-        );
-
-        List<Match> savedMatches = new ArrayList<>();
-
-        for (RoundRobinScheduler.Match m : generatedMatches) {
-            Match match = new Match();
-            match.setRound(m.round());
-            match.setTournament(tournament);
-            match.setTeam1(teamRepository.findById((long) m.homeTeam().id())
-                    .orElseThrow(() -> new RuntimeException("Home team not found")));
-            match.setTeam2(teamRepository.findById((long) m.awayTeam().id())
-                    .orElseThrow(() -> new RuntimeException("Away team not found")));
-            match.setMatchDate(m.scheduledAt());
-            match.setStatus(MatchStatus.SCHEDULED);
-            savedMatches.add(matchRepository.save(match));
-        }
-
-        return savedMatches;
-    }
+//    @Override
+//    public List<Match> generateSchedule(Long tournamentId) {
+//        Tournament tournament = tournamentRepository.findById(tournamentId)
+//                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+//
+//        if (tournament.getLeagueStart() == null) {
+//            throw new IllegalArgumentException("League start date is not set.");
+//        }
+//
+//        List<Team> teams = participantRepository.findApprovedTeamsByTournamentId(tournamentId);
+//        if (teams.size() < 2) {
+//            throw new IllegalStateException("At least two teams are required to generate a schedule.");
+//        }
+//
+//        List<RoundRobinScheduler.Team> schedulerTeams = teams.stream()
+//                .map(team -> new RoundRobinScheduler.Team(
+//                        Math.toIntExact(team.getId()),
+//                        team.getName(),
+//                        team.getHomeStadium()))
+//                .toList();
+//
+//        List<RoundRobinScheduler.Match> generatedMatches = RoundRobinScheduler.generateRoundRobinSchedule(
+//                schedulerTeams,
+//                tournament.getLeagueStart().toLocalDate(),
+//                1,
+//                true
+//        );
+//
+//        List<Match> savedMatches = new ArrayList<>();
+//
+//        for (RoundRobinScheduler.Match m : generatedMatches) {
+//            Match match = new Match();
+//            match.setRound(m.round());
+//            match.setTournament(tournament);
+//            match.setTeam1(teamRepository.findById((long) m.homeTeam().id())
+//                    .orElseThrow(() -> new RuntimeException("Home team not found")));
+//            match.setTeam2(teamRepository.findById((long) m.awayTeam().id())
+//                    .orElseThrow(() -> new RuntimeException("Away team not found")));
+//            match.setMatchDate(m.scheduledAt());
+//            match.setStatus(MatchStatus.SCHEDULED);
+//            savedMatches.add(matchRepository.save(match));
+//        }
+//
+//        return savedMatches;
+//    }
 
 }

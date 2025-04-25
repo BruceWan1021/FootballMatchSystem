@@ -6,7 +6,6 @@ import { useParams } from "react-router-dom";
 import LeagueInfoEditor from "../components/leagueManagement/leagueInforEditor";
 import ScheduleManager from "../components/leagueManagement/scheduleManager";
 import TeamApprovalList from "../components/leagueManagement/teamApprovalList";
-import BracketView from "../components/leagueManagement/bracketView";
 
 const LeagueManagementPage = () => {
   const { id } = useParams(); // tournamentId
@@ -17,7 +16,7 @@ const LeagueManagementPage = () => {
 
   const fetchTournament = async () => {
     try {
-      setLoading(true); // 在手动刷新时也加 loading
+      setLoading(true); 
       const token = sessionStorage.getItem("authToken");
       const res = await fetch(`http://localhost:8080/api/tournaments/${id}`, {
         headers: {
@@ -59,7 +58,6 @@ const LeagueManagementPage = () => {
         <Tab label="Edit Info" />
         <Tab label="Schedule" />
         <Tab label="Team Approval" />
-        <Tab label="Bracket View" />
       </Tabs>
 
       {tabIndex === 0 && (
@@ -74,8 +72,6 @@ const LeagueManagementPage = () => {
       )}
       {tabIndex === 2 && (
         <TeamApprovalList tournamentId={id} />
-      )}
-      {tabIndex === 3 && (<BracketView tournamentId={id} />
       )}
 
       <Snackbar

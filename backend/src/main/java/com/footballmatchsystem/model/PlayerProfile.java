@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class PlayerProfile {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne

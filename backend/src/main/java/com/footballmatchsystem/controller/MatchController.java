@@ -46,6 +46,23 @@ public class MatchController {
         return ResponseEntity.ok(scheduledMatches);
     }
 
+    @PutMapping("/{matchId}")
+    public ResponseEntity<?> updateMatch(@PathVariable Long matchId, @RequestBody MatchDTO matchDTO) {
+        try {
+            // Call service to update the match
+            Match updatedMatch = matchService.updateMatch(matchId, matchDTO);
+
+            if (updatedMatch == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(updatedMatch);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to update match: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/{matchId}/in-progress")
     public ResponseEntity<MatchDTO> updateMatchStatusToInProgress(@PathVariable Long matchId){
         Match updatedMatch = matchService.updateMatchStatusToInProgress(matchId);

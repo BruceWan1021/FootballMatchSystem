@@ -117,9 +117,7 @@ const StructureSection = ({ form, errors, handleChange }) => {
             <MenuItem value="DOUBLE_ROUND_ROBIN">Double Round Robin</MenuItem>
             <MenuItem value="SINGLE_ELIMINATION">Single Elimination</MenuItem>
             <MenuItem value="GROUP_KNOCKOUT">Group + Knockout</MenuItem>
-            <MenuItem value="LEAGUE_PLAYOFFS">League + Playoffs</MenuItem>
             <MenuItem value="SWISS_SYSTEM">Swiss System</MenuItem>
-            <MenuItem value="CUSTOM">Custom</MenuItem>
           </Select>
           <FormHelperText>Select the tournament structure</FormHelperText>
         </FormControl>

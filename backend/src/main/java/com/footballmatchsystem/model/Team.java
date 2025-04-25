@@ -87,6 +87,16 @@ public class Team {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamContact> contacts;
 
+    public Team(Long id, String name, String homeStadium) {
+        this.id = id;
+        this.name = name;
+        this.homeStadium = homeStadium;
+    }
+
+    public Team() {
+
+    }
+
 
     // === Getters & Setters ===
 

@@ -26,4 +26,6 @@ public interface MatchService {
     Optional<Match> getMatchById(Long id);
 
     List<MatchDTO> getMatchesByTeamId(Long id);
+
+    Match updateMatch(Long matchId, MatchDTO matchDTO);
 }

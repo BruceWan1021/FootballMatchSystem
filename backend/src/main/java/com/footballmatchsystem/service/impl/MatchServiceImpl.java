@@ -3,16 +3,18 @@ package com.footballmatchsystem.service.impl;
 import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.mapper.MatchMapper;
-import com.footballmatchsystem.model.Match;
-import com.footballmatchsystem.model.MatchStatus;
-import com.footballmatchsystem.model.Team;
+import com.footballmatchsystem.mapper.TeamMapper;
+import com.footballmatchsystem.mapper.TournamentMapper;
+import com.footballmatchsystem.model.*;
 import com.footballmatchsystem.repository.MatchRepository;
 import com.footballmatchsystem.repository.TeamRepository;
 import com.footballmatchsystem.repository.TournamentRepository;
+import com.footballmatchsystem.repository.MatchTeamInfoRepository;
 import com.footballmatchsystem.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +28,8 @@ public class MatchServiceImpl implements MatchService {
     private TournamentRepository tournamentRepository;
     @Autowired
     private TeamRepository teamRepository;
+    @Autowired
+    private MatchTeamInfoRepository matchTeamInfoRepository;
 
     @Override
     public List<Match> getMatchesByStatus(MatchStatus status){
@@ -59,28 +63,33 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public Match createMatch(Match match){
+    public Match createMatch(Match match) {
         match.setStatus(MatchStatus.SCHEDULED);
-        return matchRepository.save(match);
+        Match savedMatch = matchRepository.save(match);
+
+        // 创建主队 MatchTeamInfo
+        MatchTeamInfo homeTeamInfo = new MatchTeamInfo();
+        homeTeamInfo.setMatch(savedMatch);
+        homeTeamInfo.setTeam(savedMatch.getTeam1());
+        homeTeamInfo.setFormation("4-4-2"); // 默认阵型
+        matchTeamInfoRepository.save(homeTeamInfo);
+
+        // 创建客队 MatchTeamInfo
+        MatchTeamInfo awayTeamInfo = new MatchTeamInfo();
+        awayTeamInfo.setMatch(savedMatch);
+        awayTeamInfo.setTeam(savedMatch.getTeam2());
+        awayTeamInfo.setFormation("4-4-2"); // 默认阵型
+        matchTeamInfoRepository.save(awayTeamInfo);
+
+        return savedMatch;
     }
 
     @Override
     public List<MatchDTO> getMatchesByTournamentId(Long tournamentId) {
         List<Match> matches = matchRepository.findByTournamentId(tournamentId);
-
-        return matches.stream().map(match -> {
-            MatchDTO dto = new MatchDTO();
-            dto.setId(match.getId());
-            dto.setRound(match.getRound());
-            dto.setTeam1(toTeamDTO(match.getTeam1()));
-            dto.setTeam2(toTeamDTO(match.getTeam2()));
-            dto.setScore1(match.getScore1());
-            dto.setScore2(match.getScore2());
-            dto.setMatchDate(match.getMatchDate());
-            dto.setStatus(match.getStatus());
-            dto.setStadium(match.getTeam1().getHomeStadium()); // 默认使用 team1 主场
-            return dto;
-        }).toList();
+        return matches.stream()
+                .map(MatchMapper::toDTO)
+                .toList();
     }
 
     private TeamDTO toTeamDTO(Team team) {
@@ -105,4 +114,21 @@ public class MatchServiceImpl implements MatchService {
                 .collect(Collectors.toList());
     }
 
+    public Match updateMatch(Long matchId, MatchDTO matchDTO) {
+        // Fetch the match from the database
+        Match match = matchRepository.findById(matchId).orElse(null);
+        if (match == null) {
+            return null;
+        }
+
+        // Update match properties with data from DTO
+        match.setScore1(matchDTO.getScore1());
+        match.setScore2(matchDTO.getScore2());
+        match.setMatchDate(matchDTO.getMatchDate());
+        match.setStatus(matchDTO.getStatus());
+        match.setStadium(matchDTO.getStadium());
+
+        // Save the updated match back to the database
+        return matchRepository.save(match);
+    }
 }

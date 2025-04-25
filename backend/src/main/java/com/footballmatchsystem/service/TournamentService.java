@@ -27,6 +27,6 @@ public interface TournamentService {
 
     boolean isAdminOrCreator(Long tournamentId, String userName);
 
-    List<Match> generateSchedule(Long tournamentId);
+//    List<Match> generateSchedule(Long tournamentId);
 
 }

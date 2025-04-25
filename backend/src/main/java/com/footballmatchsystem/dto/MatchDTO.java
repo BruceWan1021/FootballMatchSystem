@@ -17,4 +17,6 @@ public class MatchDTO {
     private LocalDateTime matchDate;
     private MatchStatus status;
     private String stadium;
+    private MatchTeamInfoDTO homeTeamInfo;
+    private MatchTeamInfoDTO awayTeamInfo;
 }
