@@ -3,6 +3,7 @@ package com.footballmatchsystem.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "match_lineup")
 public class MatchLineup {
 
     @Id
@@ -18,12 +19,14 @@ public class MatchLineup {
     private PlayerProfile player;
 
     @Enumerated(EnumType.STRING)
-    private Position position; // GK, DF, MF, FW
+    @Column(nullable = true)  // 允许为空
+    private Position position; // GK, DF, MF, FW, CM, DM, WM, NULL
 
+    @Column(name = "is_starting")
     private boolean isStarting; // true 为首发，false 为替补
 
     public enum Position {
-        GK, DF, MF, FW
+        GK, DF, MF, FW, CM, DM, WM, NULL
     }
 
     public Long getId() {

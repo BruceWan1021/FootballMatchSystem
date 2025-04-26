@@ -63,4 +63,24 @@ public class MatchTeamInfo {
     public void setLineups(List<MatchLineup> lineups) {
         this.lineups = lineups;
     }
+
+    // 添加首发球员
+    public void addStartingPlayer(PlayerProfile player, MatchLineup.Position position) {
+        MatchLineup lineup = new MatchLineup();
+        lineup.setPlayer(player);
+        lineup.setPosition(position);
+        lineup.setStarting(true);
+        lineup.setMatchTeamInfo(this); // 设置所属的比赛球队信息
+        this.lineups.add(lineup);
+    }
+
+    // 添加替补球员
+    public void addSubstitutePlayer(PlayerProfile player, MatchLineup.Position position) {
+        MatchLineup lineup = new MatchLineup();
+        lineup.setPlayer(player);
+        lineup.setPosition(position);
+        lineup.setStarting(false);
+        lineup.setMatchTeamInfo(this); // 设置所属的比赛球队信息
+        this.lineups.add(lineup);
+    }
 }

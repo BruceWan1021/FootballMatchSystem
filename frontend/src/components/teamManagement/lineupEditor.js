@@ -172,7 +172,6 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
     console.log('LineupEditor props:', { teamId, matchTeamInfoId });
   }, [teamId, matchTeamInfoId]);
 
-  // 获取球员数据
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
@@ -188,6 +187,7 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
         if (!response.ok) throw new Error("获取球员数据失败");
 
         const players = await response.json();
+        console.log(players)
         initializeLineup(players);
       } catch (err) {
         setError(err.message);
@@ -243,13 +243,12 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
     if (teamId) fetchPlayers();
   }, [teamId]);
 
-  // 获取matchTeamInfoId
   useEffect(() => {
     const fetchMatchTeamInfo = async () => {
       try {
         const token = sessionStorage.getItem("authToken");
         const response = await fetch(
-          `http://localhost:8080/api/match/matchTeamInfo/${matchId}/${teamId}`,
+          `http://localhost:8080/api/matches/matchTeamInfo/${matchId}/${teamId}`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }
@@ -431,22 +430,22 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
         })),
         ...lineup.substitutes.filter(Boolean).map(p => ({
           playerId: p.userId,
-          position: null,
+          position: "NULL",
           isStarting: false
         }))
       ];
 
       // 发送请求
       const token = sessionStorage.getItem("authToken");
-      const response = await fetch(`http://localhost:8080/api/match/matchTeamInfo/${matchId}/${teamId}`, {
+      const response = await fetch(`http://localhost:8080/api/matches/matchTeamInfo/${matchId}/${teamId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(requestData) 
+        body: JSON.stringify(requestData),
       });
-
+console.log(requestData)
       if (!response.ok) {
         const contentType = response.headers.get("content-type");
         let errorMessage = "保存失败";
@@ -494,9 +493,6 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
         {/* 阵容展示部分 */}
         <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-            <Typography variant="h5" gutterBottom fontWeight="bold">
-              阵容编辑器
-            </Typography>
             <Box display="flex" gap={2} flexWrap="wrap">
               {formations.map((formation) => (
                 <Button
@@ -547,7 +543,7 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
               )}
               {saveSuccess && (
                 <Alert severity="success" sx={{ mb: 2 }}>
-                  阵容保存成功！
+                  Upload the lineup successfully!!
                 </Alert>
               )}
             </Box>

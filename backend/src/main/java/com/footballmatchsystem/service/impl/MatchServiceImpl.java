@@ -131,4 +131,8 @@ public class MatchServiceImpl implements MatchService {
         // Save the updated match back to the database
         return matchRepository.save(match);
     }
+
+    public MatchTeamInfo getMatchTeamInfo(Long matchId, Long teamId) {
+        return matchTeamInfoRepository.findByMatchIdAndTeamId(matchId, teamId);
+    }
 }

@@ -3,6 +3,7 @@ package com.footballmatchsystem.service;
 import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchStatus;
+import com.footballmatchsystem.model.MatchTeamInfo;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,6 @@ public interface MatchService {
     List<MatchDTO> getMatchesByTeamId(Long id);
 
     Match updateMatch(Long matchId, MatchDTO matchDTO);
+
+    MatchTeamInfo getMatchTeamInfo(Long matchId, Long teamId);
 }

@@ -217,6 +217,11 @@ public class Match {
         this.createdAt = createdAt;
     }
 
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
