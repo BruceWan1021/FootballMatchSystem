@@ -2,9 +2,11 @@ package com.footballmatchsystem.controller;
 
 import com.footballmatchsystem.dto.LineupRequest;
 import com.footballmatchsystem.dto.MatchDTO;
+import com.footballmatchsystem.dto.MatchEventDTO;
 import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchTeamInfo;
+import com.footballmatchsystem.service.MatchEventService;
 import com.footballmatchsystem.service.MatchService;
 import com.footballmatchsystem.service.MatchTeamInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -23,6 +27,8 @@ public class MatchController {
     private MatchService matchService;
     @Autowired
     private MatchTeamInfoService matchTeamInfoService;
+    @Autowired
+    private MatchEventService matchEventService;
 
     @GetMapping("/all")
     public ResponseEntity<List<MatchDTO>> getMatches() {
@@ -152,6 +158,31 @@ public class MatchController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("获取上一条阵容数据失败: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{matchId}/events")
+    public ResponseEntity<Map<String, Object>> addEvent(
+            @PathVariable("matchId") Long matchId,
+            @RequestBody MatchEventDTO matchEventDTO) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean isEventAdded = matchEventService.addEvent(matchId, matchEventDTO);
+
+            if (isEventAdded) {
+                response.put("message", "Event added successfully");
+                response.put("success", true);
+                return ResponseEntity.ok(response); // 返回成功的 JSON 响应
+            } else {
+                response.put("message", "Failed to add event");
+                response.put("success", false);
+                return ResponseEntity.status(400).body(response); // 返回失败的 JSON 响应
+            }
+        } catch (Exception e) {
+            response.put("message", "An error occurred: " + e.getMessage());
+            response.put("success", false);
+            return ResponseEntity.status(500).body(response); // 捕获异常并返回错误的 JSON 响应
         }
     }
 }

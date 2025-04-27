@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlayerProfileRepository extends CrudRepository<PlayerProfile, Long> {
 
@@ -17,5 +18,7 @@ public interface PlayerProfileRepository extends CrudRepository<PlayerProfile, L
     void updateTeamId(Long profileId, Long teamId);
 
     List<PlayerProfile> findByTeamId(Long teamId);
+
+    Optional<PlayerProfile> findByTeamIdAndNumber(Long teamId, int number);
 
 }

@@ -22,11 +22,11 @@ public class MatchLineup {
     @Column(nullable = true)  // 允许为空
     private Position position; // GK, DF, MF, FW, CM, DM, WM, NULL
 
-    @Column(name = "is_starting")
-    private boolean isStarting; // true 为首发，false 为替补
+    @Column(name = "is_starting", nullable = false, columnDefinition = "TINYINT(1)")
+    private boolean isStarting;
 
     public enum Position {
-        GK, DF, MF, FW, CM, DM, WM, NULL
+        GK, DF, MF, FW, CM, DM, WM, AM, NULL
     }
 
     public Long getId() {

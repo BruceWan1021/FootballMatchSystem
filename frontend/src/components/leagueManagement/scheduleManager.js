@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Typography, Paper, List, ListItem, ListItemText,
   Button, Divider, Box, CircularProgress, TextField,
-  Grid, Avatar, ListItemAvatar, Chip, Tooltip, 
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  MenuItem, Select, FormControl, InputLabel
+  Grid, Avatar, ListItemAvatar, Chip, Tooltip
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -16,9 +14,12 @@ import {
   CheckCircle as StatusIcon,
   Edit as EditIcon,
   Save as SaveIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  AddCircle as AddEventIcon
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
+import AddEventDialog from '../scheduleManager/AddEventDialog';
+import EditMatchDialog from '../scheduleManager/EditMatchDialog';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -59,14 +60,6 @@ const formatDate = (dateString) => {
   });
 };
 
-const statusOptions = [
-  { value: 'SCHEDULED', label: 'Scheduled' },
-  { value: 'IN_PROGRESS', label: 'In Progress' },
-  { value: 'COMPLETED', label: 'Completed' },
-  { value: 'POSTPONED', label: 'Postponed' },
-  { value: 'CANCELED', label: 'Canceled' }
-];
-
 const ScheduleManager = ({ tournamentId }) => {
   const [tournament, setTournament] = useState(null);
   const [matches, setMatches] = useState([]);
@@ -82,6 +75,9 @@ const ScheduleManager = ({ tournamentId }) => {
     score1: '',
     score2: ''
   });
+
+  const [eventDialogOpen, setEventDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);  // 编辑对话框的状态
 
   const loadTournament = async () => {
     const token = sessionStorage.getItem("authToken");
@@ -163,60 +159,6 @@ const ScheduleManager = ({ tournamentId }) => {
     }
   };
 
-  const handleEditClick = (match) => {
-    setEditingMatch(match);
-    setEditFormData({
-      matchDate: match.matchDate.slice(0, 16), // Format for datetime-local input
-      stadium: match.stadium || '',
-      status: match.status,
-      score1: match.score1 || '',
-      score2: match.score2 || ''
-    });
-  };
-
-  const handleEditFormChange = (e) => {
-    const { name, value } = e.target;
-    setEditFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSaveEdit = async () => {
-    const token = sessionStorage.getItem("authToken");
-    try {
-      const updatedMatch = {
-        ...editingMatch,
-        matchDate: editFormData.matchDate,
-        stadium: editFormData.stadium,
-        status: editFormData.status,
-        score1: parseInt(editFormData.score1) || 0,
-        score2: parseInt(editFormData.score2) || 0
-      };
-
-      const res = await fetch(`http://localhost:8080/api/matches/${editingMatch.id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(updatedMatch)
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to update match");
-      }
-
-      alert("Match updated successfully!");
-
-      await loadMatches();
-      setEditingMatch(null);
-    } catch (error) {
-      console.error("Update error:", error);
-      alert(error.message);
-    }
-  };
-
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -239,9 +181,56 @@ const ScheduleManager = ({ tournamentId }) => {
     );
   }
 
+  const handleEditClick = (match) => {
+    if (match.status !== 'IN_PROGRESS' && match.status !== 'COMPLETED') {
+      setEditingMatch(match);
+      setEditDialogOpen(true);
+    }
+  };
+
+  const handleEventDialogOpen = (match) => {
+    setEditingMatch(match);
+    setEventDialogOpen(true);
+  };
+
+  const handleUpdateMatch = (updatedMatchData) => {
+    setMatches(matches.map(match =>
+      match.id === updatedMatchData.id ? updatedMatchData : match
+    ));
+  };
+
+  const handleSaveEvent = async (updatedEvent) => {
+    const token = sessionStorage.getItem("authToken");
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/matches/${editingMatch.id}/events`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedEvent),
+      });
+
+      const result = await response.json();
+
+
+
+        alert("Successfully Add Event!!!");
+
+        await loadMatches();
+        setEventDialogOpen(false);
+      
+    } catch (error) {
+      console.error("Error saving event:", error);
+      alert(error.message);
+    }
+  };
+
   const renderMatchItem = (match, index) => {
     const isCompleted = match.status === 'COMPLETED';
-    
+    const isInProgress = match.status === 'IN_PROGRESS';
+
     return (
       <React.Fragment key={index}>
         <MatchListItem alignItems="flex-start">
@@ -267,13 +256,13 @@ const ScheduleManager = ({ tournamentId }) => {
                     color="primary"
                   />
                 )}
-                <Button 
-                  size="small" 
-                  startIcon={<EditIcon />} 
-                  onClick={() => handleEditClick(match)}
+                <Button
+                  size="small"
+                  startIcon={isInProgress || isCompleted ? <AddEventIcon /> : <EditIcon />}
+                  onClick={isInProgress || isCompleted ? () => handleEventDialogOpen(match) : () => handleEditClick(match)}
                   sx={{ ml: 'auto' }}
                 >
-                  Edit
+                  {isInProgress || isCompleted ? 'Add Event' : 'Edit'}
                 </Button>
               </Box>
             }
@@ -287,7 +276,7 @@ const ScheduleManager = ({ tournamentId }) => {
                     </Typography>
                   </Box>
                 </Grid>
-                
+
                 {match.stadium && (
                   <Grid item xs={12} sm={6} md={4}>
                     <Box display="flex" alignItems="center">
@@ -298,7 +287,7 @@ const ScheduleManager = ({ tournamentId }) => {
                     </Box>
                   </Grid>
                 )}
-                
+
                 <Grid item xs={12} sm={6} md={4}>
                   <Box display="flex" alignItems="center">
                     <RoundIcon color="action" fontSize="small" sx={{ mr: 0.5 }} />
@@ -307,7 +296,7 @@ const ScheduleManager = ({ tournamentId }) => {
                     </Typography>
                   </Box>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6} md={4}>
                   <Box display="flex" alignItems="center">
                     <StatusIcon color="action" fontSize="small" sx={{ mr: 0.5 }} />
@@ -340,7 +329,7 @@ const ScheduleManager = ({ tournamentId }) => {
             </Typography>
           </Box>
         </Box>
-        
+
         <Box display="flex" gap={2} alignItems="center">
           <Tooltip title="Days between matches">
             <TextField
@@ -354,7 +343,7 @@ const ScheduleManager = ({ tournamentId }) => {
               variant="outlined"
             />
           </Tooltip>
-          
+
           <Button
             variant="contained"
             color="primary"
@@ -372,15 +361,15 @@ const ScheduleManager = ({ tournamentId }) => {
           <MatchIcon color="primary" sx={{ mr: 1 }} />
           All Matches
         </Typography>
-        
+
         {matches.length === 0 ? (
           <Box textAlign="center" py={4}>
             <Typography variant="body1" color="text.secondary">
               No matches scheduled yet
             </Typography>
-            <Button 
-              variant="outlined" 
-              color="primary" 
+            <Button
+              variant="outlined"
+              color="primary"
               onClick={regenerateSchedule}
               startIcon={<RefreshIcon />}
               sx={{ mt: 2 }}
@@ -397,95 +386,21 @@ const ScheduleManager = ({ tournamentId }) => {
         )}
       </Box>
 
-      {/* Edit Match Dialog */}
-      <Dialog open={!!editingMatch} onClose={() => setEditingMatch(null)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          <Box display="flex" alignItems="center">
-            <EditIcon color="primary" sx={{ mr: 1 }} />
-            Edit Match: {editingMatch?.team1?.name} vs {editingMatch?.team2?.name}
-          </Box>
-        </DialogTitle>
-        <DialogContent dividers>
-          <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Match Date & Time"
-                type="datetime-local"
-                fullWidth
-                name="matchDate"
-                value={editFormData.matchDate}
-                onChange={handleEditFormChange}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Stadium"
-                fullWidth
-                name="stadium"
-                value={editFormData.stadium}
-                onChange={handleEditFormChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  label="Status"
-                  name="status"
-                  value={editFormData.status}
-                  onChange={handleEditFormChange}
-                >
-                  {statusOptions.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <TextField
-                label={`${editingMatch?.team1?.name} Score`}
-                type="number"
-                fullWidth
-                name="score1"
-                value={editFormData.score1}
-                onChange={handleEditFormChange}
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <TextField
-                label={`${editingMatch?.team2?.name} Score`}
-                type="number"
-                fullWidth
-                name="score2"
-                value={editFormData.score2}
-                onChange={handleEditFormChange}
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button 
-            startIcon={<CloseIcon />} 
-            onClick={() => setEditingMatch(null)}
-            color="secondary"
-          >
-            Cancel
-          </Button>
-          <Button 
-            startIcon={<SaveIcon />} 
-            onClick={handleSaveEdit}
-            variant="contained"
-            color="primary"
-          >
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* 编辑比赛对话框 */}
+      <EditMatchDialog
+        open={editDialogOpen}
+        match={editingMatch}
+        onClose={() => setEditDialogOpen(false)}
+        onUpdateMatch={handleUpdateMatch}
+      />
+
+      {/* 添加事件对话框 */}
+      <AddEventDialog
+        open={eventDialogOpen}
+        match={editingMatch}
+        onClose={() => setEventDialogOpen(false)}
+        onAddEvent={handleSaveEvent}
+      />
     </StyledPaper>
   );
 };

@@ -25,10 +25,12 @@ public class LineupServiceImpl implements LineupService {
     private final MatchTeamInfoRepository matchTeamInfoRepository;
     private final PlayerProfileRepository playerRepository;
 
-    @Override
+    @Transactional
     public List<MatchLineup> saveLineup(Long matchTeamInfoId, List<MatchPlayerLineupDTO> lineupDTOs) {
         MatchTeamInfo matchTeamInfo = matchTeamInfoRepository.findById(matchTeamInfoId)
                 .orElseThrow(() -> new BusinessException("比赛队伍信息不存在"));
+
+        matchTeamInfo.getLineups().size(); // ✨强制初始化 lineups
 
         lineupRepository.deleteByMatchTeamInfoId(matchTeamInfoId);
 
@@ -40,16 +42,22 @@ public class LineupServiceImpl implements LineupService {
             MatchLineup lineup = new MatchLineup();
             lineup.setMatchTeamInfo(matchTeamInfo);
             lineup.setPlayer(player);
-            lineup.setPosition(dto.getPosition() != null ?
-                    MatchLineup.Position.valueOf(dto.getPosition()) : null);
-            lineup.setStarting(dto.isStarting());
+
+            MatchLineup.Position position = dto.getPosition() != null ? MatchLineup.Position.valueOf(dto.getPosition()) : null;
+            lineup.setPosition(position);
+            if (position == MatchLineup.Position.NULL){
+                lineup.setStarting(false);
+            }else
+                lineup.setStarting(true);
 
             newLineups.add(lineup);
         }
 
         validateLineup(newLineups);
+
         return lineupRepository.saveAll(newLineups);
     }
+
 
     @Override
     public List<MatchLineup> getLineupByMatchTeam(Long matchTeamInfoId) {
