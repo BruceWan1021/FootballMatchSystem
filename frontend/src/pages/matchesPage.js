@@ -34,8 +34,8 @@ const MatchesPage = () => {
             date: match.matchDate?.split("T")[0] || "-",
             time: match.matchDate?.split("T")[1]?.slice(0, 5) || "-",
             status: convertedStatus,
-            score: match.score || "-",
-          };
+            score: match.status === "COMPLETED"|| "IN_PROGRESS" ? `${match.score1} - ${match.score2}` : "-",
+          };          
         });
         setMatches(formatted);
         setFiltered(formatted);

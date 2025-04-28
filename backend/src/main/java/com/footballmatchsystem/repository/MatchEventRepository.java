@@ -4,8 +4,10 @@ import com.footballmatchsystem.model.MatchEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MatchEventRepository extends JpaRepository<MatchEvent, Long> {
-    // 你可以根据需要定义其他查询方法
+    List<MatchEvent> findByMatchId(Long matchId);
 }
 

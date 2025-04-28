@@ -1,5 +1,6 @@
 package com.footballmatchsystem.service;
 
+import com.footballmatchsystem.dto.TeamStatsDTO;
 import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.Tournament;
@@ -27,6 +28,6 @@ public interface TournamentService {
 
     boolean isAdminOrCreator(Long tournamentId, String userName);
 
-//    List<Match> generateSchedule(Long tournamentId);
+    List<TeamStatsDTO> getStandingsByTournamentId(Long tournamentId);
 
 }

@@ -83,9 +83,38 @@ const MatchList = ({ matches }) => {
                     </Typography>
                   </Box>
 
-                  <Typography variant="body1" color="text.secondary">
-                    vs
-                  </Typography>
+                  {/* 比分显示 - 修改为更醒目的样式 */}
+                  {match.score ? (
+                    <Box sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 80,
+                      backgroundColor: theme.palette.grey[100],
+                      borderRadius: 2,
+                      py: 0.5,
+                      px: 1.5,
+                      border: `1px solid ${theme.palette.divider}`
+                    }}>
+                      <Typography 
+                        variant="h6" 
+                        fontWeight="bold"
+                        sx={{
+                          color: statusConfig.color === 'warning' 
+                            ? theme.palette.warning.main 
+                            : theme.palette.text.primary,
+                          fontSize: '1.25rem',
+                          letterSpacing: 1
+                        }}
+                      >
+                        {match.score}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography variant="body1" color="text.secondary">
+                      vs
+                    </Typography>
+                  )}
 
                   {/* 右侧队伍信息 */}
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: 140 }}>
@@ -139,15 +168,18 @@ const MatchList = ({ matches }) => {
                       size="small"
                       sx={{ fontWeight: "bold" }}
                     />
-                    {match.score && (
-                      <Typography variant="h6" fontWeight="bold">
-                        {match.score}
-                      </Typography>
-                    )}
                     <Button
                       variant="contained"
                       size="small"
-                      sx={{ minWidth: 90, textTransform: "none", boxShadow: "none" }}
+                      sx={{ 
+                        minWidth: 90, 
+                        textTransform: "none", 
+                        boxShadow: "none",
+                        backgroundColor: theme.palette.primary.main,
+                        "&:hover": {
+                          backgroundColor: theme.palette.primary.dark
+                        }
+                      }}
                     >
                       Details
                     </Button>

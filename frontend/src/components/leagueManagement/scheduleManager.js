@@ -182,17 +182,14 @@ const ScheduleManager = ({ tournamentId }) => {
   }
 
   const handleEditClick = (match) => {
-    if (match.status !== 'IN_PROGRESS' && match.status !== 'COMPLETED') {
-      setEditingMatch(match);
-      setEditDialogOpen(true);
-    }
+    setEditingMatch(match);
+    setEditDialogOpen(true); 
   };
-
+  
   const handleEventDialogOpen = (match) => {
     setEditingMatch(match);
-    setEventDialogOpen(true);
+    setEventDialogOpen(true);  
   };
-
   const handleUpdateMatch = (updatedMatchData) => {
     setMatches(matches.map(match =>
       match.id === updatedMatchData.id ? updatedMatchData : match
@@ -230,7 +227,7 @@ const ScheduleManager = ({ tournamentId }) => {
   const renderMatchItem = (match, index) => {
     const isCompleted = match.status === 'COMPLETED';
     const isInProgress = match.status === 'IN_PROGRESS';
-
+  
     return (
       <React.Fragment key={index}>
         <MatchListItem alignItems="flex-start">
@@ -256,14 +253,27 @@ const ScheduleManager = ({ tournamentId }) => {
                     color="primary"
                   />
                 )}
+                {/* Edit button always visible */}
                 <Button
                   size="small"
-                  startIcon={isInProgress || isCompleted ? <AddEventIcon /> : <EditIcon />}
-                  onClick={isInProgress || isCompleted ? () => handleEventDialogOpen(match) : () => handleEditClick(match)}
+                  startIcon={<EditIcon />}
+                  onClick={() => handleEditClick(match)}  // 这里打开 EditMatchDialog
                   sx={{ ml: 'auto' }}
                 >
-                  {isInProgress || isCompleted ? 'Add Event' : 'Edit'}
+                  Edit
                 </Button>
+  
+                {/* Add Event button only visible when status is IN_PROGRESS or COMPLETED */}
+                {(isInProgress || isCompleted) && (
+                  <Button
+                    size="small"
+                    startIcon={<AddEventIcon />}
+                    onClick={() => handleEventDialogOpen(match)}  // 这里打开 AddEventDialog
+                    sx={{ ml: 1 }}
+                  >
+                    Add Event
+                  </Button>
+                )}
               </Box>
             }
             secondary={
@@ -276,7 +286,7 @@ const ScheduleManager = ({ tournamentId }) => {
                     </Typography>
                   </Box>
                 </Grid>
-
+  
                 {match.stadium && (
                   <Grid item xs={12} sm={6} md={4}>
                     <Box display="flex" alignItems="center">
@@ -287,7 +297,7 @@ const ScheduleManager = ({ tournamentId }) => {
                     </Box>
                   </Grid>
                 )}
-
+  
                 <Grid item xs={12} sm={6} md={4}>
                   <Box display="flex" alignItems="center">
                     <RoundIcon color="action" fontSize="small" sx={{ mr: 0.5 }} />
@@ -296,7 +306,7 @@ const ScheduleManager = ({ tournamentId }) => {
                     </Typography>
                   </Box>
                 </Grid>
-
+  
                 <Grid item xs={12} sm={6} md={4}>
                   <Box display="flex" alignItems="center">
                     <StatusIcon color="action" fontSize="small" sx={{ mr: 0.5 }} />
@@ -313,7 +323,7 @@ const ScheduleManager = ({ tournamentId }) => {
       </React.Fragment>
     );
   };
-
+  
   return (
     <StyledPaper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>

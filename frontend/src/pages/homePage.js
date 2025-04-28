@@ -3,7 +3,6 @@ import { Container, Typography, Grid, Paper, Box, Button } from "@mui/material";
 import WelcomeSection from "../components/welcomeSection";
 import UpcomingMatches from "../components/matches";
 import UpcomingLeagues from "../components/upcommingLeagues";
-import SeasonStats from "../components/seasonStats";
 
 const HomePage = () => {
   return (
@@ -21,26 +20,13 @@ const HomePage = () => {
         <WelcomeSection />
         <UpcomingMatches />
 
-        <Grid container spacing={4} sx={{ mt: 6 }}>
-          <Grid item xs={12} md={5}>
-            <SeasonStats />
-          </Grid>
-          <Grid item xs={12} md={7}>
+        <Grid container justifyContent="center">
+          <Grid item xs={12} sm={8} md={12}> 
             <UpcomingLeagues />
           </Grid>
         </Grid>
 
-        {/* 最新赛事新闻 */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-            📢 Latest News & Announcements
-          </Typography>
-          <Paper sx={{ padding: 2 }}>
-            <Typography variant="body2">
-              The Spring Cup 2024 starts next week! Register now and secure your spot.
-            </Typography>
-          </Paper>
-        </Box>
+
 
         {/* 底部资源下载 */}
         <Box

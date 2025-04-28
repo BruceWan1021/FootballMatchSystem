@@ -185,4 +185,16 @@ public class MatchController {
             return ResponseEntity.status(500).body(response); // 捕获异常并返回错误的 JSON 响应
         }
     }
+
+    @GetMapping("/{matchId}/events")
+    public ResponseEntity<List<MatchEventDTO>> getMatchEvents(@PathVariable Long matchId) {
+
+            List<MatchEventDTO> events = matchEventService.getMatchEvent(matchId);  // 调用服务层获取事件数据
+            if (events != null && !events.isEmpty()) {
+                return ResponseEntity.ok(events);  // 返回事件列表
+            } else {
+                return ResponseEntity.noContent().build();  // 没有事件时返回 204 No Content
+            }
+    }
+
 }

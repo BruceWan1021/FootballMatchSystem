@@ -34,6 +34,7 @@ const TeamApprovalList = ({ tournamentId }) => {
         if (a.status !== "PENDING" && b.status === "PENDING") return 1;
         return 0;
       });
+      console.log(data)
       setParticipants(sorted);
     } catch (err) {
       setError(err.message);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Navbar from "./components/navBar";
 import Footer from "./components/footer";
 import LoginPage from "./pages/loginPage";
@@ -70,7 +69,6 @@ const App = () => {
         </Routes>
         <Footer />
       </BrowserRouter>
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };

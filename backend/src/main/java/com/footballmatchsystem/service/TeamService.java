@@ -1,6 +1,7 @@
 package com.footballmatchsystem.service;
 
 import com.footballmatchsystem.dto.TeamDTO;
+import com.footballmatchsystem.dto.TeamStatsDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +23,6 @@ public interface TeamService {
     String joinTeamByUsername(Long id, String username);
 
     List<TeamDTO> getMyTeams(String username);
+
+    TeamStatsDTO getTeamStats(Long teamId);
 }

@@ -1,15 +1,12 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Avatar, Chip, Box, Typography, useTheme}from "@mui/material";
-import {
-  SportsSoccer as SoccerIcon,
-  TrendingUp as TrendUpIcon,
-  TrendingDown as TrendDownIcon,
-  Equalizer as StatsIcon
-} from "@mui/icons-material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, Chip, Box, Typography, useTheme } from "@mui/material";
+import { SportsSoccer as SoccerIcon, Equalizer as StatsIcon } from "@mui/icons-material";
 
 const LeagueStandings = ({ standings }) => {
   const theme = useTheme();
+
+  // 对 standings 按 points 从大到小排序
+  const sortedStandings = standings.sort((a, b) => b.points - a.points);
 
   if (!standings || standings.length === 0) {
     return (
@@ -57,31 +54,28 @@ const LeagueStandings = ({ standings }) => {
               <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: theme.palette.grey[200] }}>
                 Pts
               </TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                Form
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {standings.map((row) => (
+            {sortedStandings.map((row, index) => (
               <TableRow
-                key={row.rank}
+                key={row.teamId}
                 hover
                 sx={{
                   "&:nth-of-type(odd)": { bgcolor: theme.palette.action.hover },
-                  "&:last-child td": { borderBottom: 0 }
+                  "&:last-child td": { borderBottom: 0 },
                 }}
               >
                 <TableCell>
                   <Chip
-                    label={row.rank}
+                    label={index + 1} // Display the rank based on sorted position
                     size="small"
                     color={
-                      row.rank <= 2
+                      index <= 2
                         ? "success"
-                        : row.rank <= 4
+                        : index <= 4
                         ? "primary"
-                        : row.rank >= standings.length - 2
+                        : index >= standings.length - 2
                         ? "error"
                         : "default"
                     }
@@ -91,64 +85,35 @@ const LeagueStandings = ({ standings }) => {
                 <TableCell>
                   <Box display="flex" alignItems="center">
                     <Avatar
-                      src={row.logo}
+                      src={row.teamLogo}
                       sx={{
                         width: 24,
                         height: 24,
                         mr: 1,
-                        bgcolor: theme.palette.grey[300]
+                        bgcolor: theme.palette.grey[300],
                       }}
                     >
-                      {row.team.charAt(0)}
+                      {row.teamName.charAt(0)}
                     </Avatar>
                     <Typography variant="body2" fontWeight="medium">
-                      {row.team}
+                      {row.teamName}
                     </Typography>
                   </Box>
                 </TableCell>
-                <TableCell align="center">{row.played || row.w + row.d + row.l}</TableCell>
+                <TableCell align="center">{row.matchesPlayed}</TableCell>
                 <TableCell align="center" sx={{ color: theme.palette.success.main }}>
-                  {row.w}
+                  {row.wins}
                 </TableCell>
                 <TableCell align="center" sx={{ color: theme.palette.warning.main }}>
-                  {row.d}
+                  {row.draws}
                 </TableCell>
                 <TableCell align="center" sx={{ color: theme.palette.error.main }}>
-                  {row.l}
+                  {row.losses}
                 </TableCell>
-                <TableCell align="center">{row.gf}</TableCell>
-                <TableCell align="center">{row.ga}</TableCell>
+                <TableCell align="center">{row.goalsFor}</TableCell>
+                <TableCell align="center">{row.goalsAgainst}</TableCell>
                 <TableCell align="center" sx={{ bgcolor: theme.palette.grey[200], fontWeight: "bold" }}>
-                  {row.pts}
-                </TableCell>
-                <TableCell align="center">
-                  <Box display="flex" gap={0.5}>
-                    {row.form?.split("").map((result, i) => (
-                      <Chip
-                        key={i}
-                        label={result}
-                        size="small"
-                        sx={{
-                          minWidth: 20,
-                          height: 20,
-                          fontWeight: "bold",
-                          bgcolor:
-                            result === "W"
-                              ? theme.palette.success.light
-                              : result === "D"
-                              ? theme.palette.warning.light
-                              : theme.palette.error.light,
-                          color: theme.palette.getContrastText(
-                            result === "W"
-                              ? theme.palette.success.light
-                              : result === "D"
-                              ? theme.palette.warning.light
-                              : theme.palette.error.light
-                          )
-                        }}
-                      />
-                    ))}
-                  </Box>
+                  {row.points}
                 </TableCell>
               </TableRow>
             ))}

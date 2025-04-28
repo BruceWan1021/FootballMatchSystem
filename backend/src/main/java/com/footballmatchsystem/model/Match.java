@@ -79,6 +79,7 @@ public class Match {
         this.team2 = team2;
         this.round = round;
         this.matchDate = matchDate;
+        this.createdAt = LocalDateTime.now();
     }
 
     public MatchTeamInfo getHomeTeamInfo() {

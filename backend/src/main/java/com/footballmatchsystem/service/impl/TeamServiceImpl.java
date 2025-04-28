@@ -1,12 +1,12 @@
 package com.footballmatchsystem.service.impl;
 
 import com.footballmatchsystem.dto.TeamDTO;
+import com.footballmatchsystem.dto.TeamStatsDTO;
 import com.footballmatchsystem.mapper.TeamMapper;
 import com.footballmatchsystem.model.*;
 import com.footballmatchsystem.repository.*;
 import com.footballmatchsystem.service.TeamService;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +29,8 @@ public class TeamServiceImpl implements TeamService {
     private TeamParticipantRepository participantRepository;
     @Autowired
     private UserTeamRoleRepository userTeamRoleRepository;
+    @Autowired
+    private MatchRepository matchRepository;
 
     @Override
     @Transactional
@@ -138,6 +140,28 @@ public class TeamServiceImpl implements TeamService {
                 .distinct()                      // 防止重复
                 .map(TeamMapper::toDTO)          // 转换成 DTO
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TeamStatsDTO getTeamStats(Long teamId) {
+        int matchesPlayed = matchRepository.countMatchesByTeamId(teamId);  // 获取比赛场次
+        int wins = matchRepository.countWinsByTeamId(teamId);  // 获取胜场数
+        int draws = matchRepository.countDrawsByTeamId(teamId);  // 获取平局场数
+        int losses = matchRepository.countLossesByTeamId(teamId);  // 获取负场数
+        int goalsFor = matchRepository.sumGoalsForByTeamId(teamId);  // 获取进球数
+        int goalsAgainst = matchRepository.sumGoalsAgainstByTeamId(teamId);  // 获取失球数
+
+        double winRate = (matchesPlayed > 0) ? (wins / (double) matchesPlayed) * 100 : 0;
+
+        TeamStatsDTO stats = new TeamStatsDTO();
+        stats.setMatchesPlayed(matchesPlayed);
+        stats.setWins(wins);
+        stats.setDraws(draws);
+        stats.setLosses(losses);
+        stats.setGoalsFor(goalsFor);
+        stats.setGoalsAgainst(goalsAgainst);
+        stats.setWinRate(winRate);
+        return stats;
     }
 
 

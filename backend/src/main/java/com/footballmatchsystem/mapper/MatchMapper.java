@@ -3,7 +3,6 @@ package com.footballmatchsystem.mapper;
 import com.footballmatchsystem.dto.*;
 import com.footballmatchsystem.model.*;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class MatchMapper {
@@ -16,26 +15,30 @@ public class MatchMapper {
         dto.setScore2(match.getScore2());
         dto.setMatchDate(match.getMatchDate());
         dto.setStatus(match.getStatus());
+
+        // Set the stadium for the match
         String stadium = match.getTeam1().getHomeStadium();
         if (stadium == null || stadium.isEmpty()) {
             stadium = match.getStadium();
         }
         dto.setStadium(stadium);
 
-
-        // Team 1
+        // Mapping Team 1
         TeamDTO team1DTO = new TeamDTO();
         team1DTO.setId(match.getTeam1().getId());
         team1DTO.setName(match.getTeam1().getName());
+        team1DTO.setHomeStadium(match.getTeam1().getHomeStadium());
+        team1DTO.setLogoUrl(match.getTeam1().getLogoUrl());
         dto.setTeam1(team1DTO);
 
-        // Team 2
+        // Mapping Team 2
         TeamDTO team2DTO = new TeamDTO();
         team2DTO.setId(match.getTeam2().getId());
         team2DTO.setName(match.getTeam2().getName());
+        team2DTO.setLogoUrl(match.getTeam2().getLogoUrl());
         dto.setTeam2(team2DTO);
 
-        // Tournament
+        // Mapping Tournament details
         if (match.getTournament() != null) {
             Tournament t = match.getTournament();
             TournamentDTO tDto = new TournamentDTO();
@@ -45,13 +48,14 @@ public class MatchMapper {
             dto.setTournament(tDto);
         }
 
-        // Match Team Info: home and away
+        // Mapping Match Team Info (home and away teams)
         dto.setHomeTeamInfo(toTeamInfoDTO(match.getHomeTeamInfo()));
         dto.setAwayTeamInfo(toTeamInfoDTO(match.getAwayTeamInfo()));
 
         return dto;
     }
 
+    // Converts MatchTeamInfo entity to MatchTeamInfoDTO
     public static MatchTeamInfoDTO toTeamInfoDTO(MatchTeamInfo teamInfo) {
         if (teamInfo == null || teamInfo.getTeam() == null) return null;
 
@@ -60,6 +64,7 @@ public class MatchMapper {
         dto.setTeamName(teamInfo.getTeam().getName());
         dto.setFormation(teamInfo.getFormation());
 
+        // Mapping Player Lineup
         if (teamInfo.getLineups() != null) {
             dto.setLineup(
                     teamInfo.getLineups().stream()
@@ -71,6 +76,7 @@ public class MatchMapper {
         return dto;
     }
 
+    // Converts MatchLineup entity to MatchPlayerLineupDTO
     public static MatchPlayerLineupDTO toPlayerLineupDTO(MatchLineup lineup) {
         MatchPlayerLineupDTO dto = new MatchPlayerLineupDTO();
         if (lineup.getPlayer() != null) {

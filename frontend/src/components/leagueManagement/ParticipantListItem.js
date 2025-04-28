@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ListItem, ListItemText, IconButton, Typography,
   Box, Tooltip, Chip, Divider, Dialog, DialogTitle,
@@ -47,8 +47,29 @@ const ParticipantListItem = ({ participant, onDecision, showDivider }) => {
 
   const handleOpenDetails = () => setOpen(true);
   const handleCloseDetails = () => setOpen(false);
+  const [players, setPlayers] = useState([]);
 
-  const players = participant.teamDTO?.players || []; // 假设players字段是数组
+  const fetchPlayers = async (teamId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/participant/teams/${teamId}/participants`);
+      const data = await response.json();
+      console.log(data)
+      setPlayers(data);
+    } catch (error) {
+      console.error("Failed to fetch players:", error);
+    }
+  };
+
+    useEffect(() => {
+    if (open) {
+
+      fetchPlayers(participant.teamDTO.id);
+    }
+  }, [open, participant]);
+
+  const contacts = participant.teamDTO?.contacts || [];
+
+  const firstContact = contacts[0];
 
   return (
     <>
@@ -97,23 +118,29 @@ const ParticipantListItem = ({ participant, onDecision, showDivider }) => {
         }
       >
         <ListItemText
-          primary={
+          primary={(
             <Typography variant="subtitle1" fontWeight={500}>
               {participant.teamDTO?.name ?? "Unnamed Team"}
             </Typography>
-          }
-          secondary={
+          )}
+          secondary={(
             <>
-              <Typography variant="body2" color="text.secondary">
-                Contact: {participant.teamDTO?.contactEmail || 'N/A'}
-              </Typography>
+              {firstContact && (
+                <Typography variant="body2" color="text.secondary">
+                  <strong>{firstContact.name}</strong> - {firstContact.role}
+                  <br />
+                  Email: <a href={`mailto:${firstContact.email}`}>{firstContact.email}</a>
+                  <br />
+                  Phone: {firstContact.phone}
+                </Typography>
+              )}
               {participant.teamDTO?.description && (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                   {participant.teamDTO.description}
                 </Typography>
               )}
             </>
-          }
+          )}
           sx={{ pr: 4 }}
         />
       </ListItem>
@@ -128,8 +155,8 @@ const ParticipantListItem = ({ participant, onDecision, showDivider }) => {
                 <ListItem key={idx} disablePadding>
                   <ListItemButton>
                     <ListItemText
-                      primary={`${player.name}`}
-                      secondary={`Number: ${player.number} | Position: ${player.position}`}
+                      primary={`${player.playerProfileDTO.username}`}
+                      secondary={`Number: ${player.playerProfileDTO.number} | Position: ${player.playerProfileDTO.position}`}
                     />
                   </ListItemButton>
                 </ListItem>

@@ -110,7 +110,7 @@ const MatchDetailPage = () => {
           Match Events
         </Typography>
 
-        <MatchEvent events={match.events || []} />
+        <MatchEvent match={match} />
       </Paper>
     </Container>
   );

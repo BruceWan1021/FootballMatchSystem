@@ -2,7 +2,7 @@ package com.footballmatchsystem.controller;
 
 import com.footballmatchsystem.dto.TeamDTO;
 import com.footballmatchsystem.dto.TeamMemberDTO;
-import com.footballmatchsystem.dto.TournamentDTO;
+import com.footballmatchsystem.dto.TeamStatsDTO;
 import com.footballmatchsystem.model.UserTeamRole;
 import com.footballmatchsystem.service.TeamService;
 import com.footballmatchsystem.service.UserService;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.net.URI;
 import java.util.List;
@@ -44,6 +43,26 @@ public class TeamController {
         String username = authentication.getName();
         List<TeamDTO> teams = teamService.getMyTeams(username);
         return ResponseEntity.ok(teams);
+    }
+
+    /**
+     * 获取指定队伍的统计数据
+     * @param teamId 队伍ID
+     * @return 队伍统计数据
+     */
+    @GetMapping("/{teamId}/stats")
+    public ResponseEntity<TeamStatsDTO> getTeamStats(@PathVariable Long teamId) {
+        try {
+            // 调用 service 层方法获取队伍的统计数据
+            TeamStatsDTO stats = teamService.getTeamStats(teamId);
+            if (stats != null) {
+                return ResponseEntity.ok(stats);  // 返回成功响应，包含队伍统计数据
+            } else {
+                return ResponseEntity.notFound().build();  // 队伍未找到，返回 404
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);  // 处理异常并返回 500 错误
+        }
     }
 
     @GetMapping("/{id}")

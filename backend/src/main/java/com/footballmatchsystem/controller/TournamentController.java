@@ -1,5 +1,6 @@
 package com.footballmatchsystem.controller;
 
+import com.footballmatchsystem.dto.TeamStatsDTO;
 import com.footballmatchsystem.dto.TournamentDTO;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.service.TournamentService;
@@ -89,5 +90,16 @@ public class TournamentController {
         String username = authentication.getName();
         String resultMessage = tournamentService.joinTournamentByUsername(id, username);
         return ResponseEntity.ok(resultMessage);
+    }
+
+    /**
+     * 获取特定锦标赛的积分榜
+     *
+     * @param tournamentId 锦标赛ID
+     * @return 积分榜列表
+     */
+    @GetMapping("/{tournamentId}/standings")
+    public List<TeamStatsDTO> getStandings(@PathVariable Long tournamentId) {
+        return tournamentService.getStandingsByTournamentId(tournamentId);
     }
 }
