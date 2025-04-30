@@ -60,6 +60,7 @@ public class MatchMapper {
         if (teamInfo == null || teamInfo.getTeam() == null) return null;
 
         MatchTeamInfoDTO dto = new MatchTeamInfoDTO();
+        dto.setId(teamInfo.getId());
         dto.setTeamId(teamInfo.getTeam().getId());
         dto.setTeamName(teamInfo.getTeam().getName());
         dto.setFormation(teamInfo.getFormation());

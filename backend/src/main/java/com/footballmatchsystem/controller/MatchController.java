@@ -3,6 +3,7 @@ package com.footballmatchsystem.controller;
 import com.footballmatchsystem.dto.LineupRequest;
 import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.dto.MatchEventDTO;
+import com.footballmatchsystem.dto.MatchTeamInfoDTO;
 import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.model.Match;
 import com.footballmatchsystem.model.MatchTeamInfo;
@@ -105,23 +106,23 @@ public class MatchController {
     }
 
     @GetMapping("/matchTeamInfo/{matchId}/{teamId}")
-    public ResponseEntity<MatchTeamInfo> getMatchTeamInfo(
+    public ResponseEntity<MatchTeamInfoDTO> getMatchTeamInfo(
             @PathVariable Long matchId,
             @PathVariable Long teamId) {
         try {
-
             MatchTeamInfo matchTeamInfo = matchService.getMatchTeamInfo(matchId, teamId);
-
             if (matchTeamInfo == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            return new ResponseEntity<>(matchTeamInfo, HttpStatus.OK);
+            MatchTeamInfoDTO dto = MatchMapper.toTeamInfoDTO(matchTeamInfo); // 用 Mapper 转换
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PostMapping("/matchTeamInfo/{matchId}/{teamId}")
     public ResponseEntity<String> saveLineup(

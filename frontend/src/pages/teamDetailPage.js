@@ -54,7 +54,6 @@ const TeamDetailPage = () => {
         });
         if (!matchesRes.ok) throw new Error("Failed to fetch match history");
         const upcomingMatches = await matchesRes.json();
-        console.log(upcomingMatches)
   
         const enrichedTeam = {
           ...teamData,

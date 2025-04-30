@@ -256,6 +256,7 @@ const LineupEditor = ({ teamId, matchId, onSaveSuccess }) => {
 
         if (!response.ok) throw new Error("获取比赛信息失败");
         const data = await response.json();
+        console.log(data)
         setMatchTeamInfoId(data.id);
       } catch (err) {
         console.error("获取比赛信息出错:", err);

@@ -6,7 +6,6 @@ import {
 const SquadPlayersSection = ({ players }) => {
   const theme = useTheme();
 
-  // 默认按球衣号排序（如你之前要求）
   const sortedPlayers = [...players].sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
 
   return (

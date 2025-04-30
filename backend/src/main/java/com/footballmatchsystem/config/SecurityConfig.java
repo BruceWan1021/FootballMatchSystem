@@ -53,7 +53,8 @@ public class SecurityConfig {
                                 "/api/teams",
                                 "/api/teams/**",
                                 "/api/matches/**",
-                                "/api/participant/**"
+                                "/api/participant/**",
+                                "/api/profile/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

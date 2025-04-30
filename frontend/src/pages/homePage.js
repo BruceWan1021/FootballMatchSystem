@@ -57,7 +57,7 @@ const HomePage = () => {
                 variant="outlined"
                 color="primary"
                 sx={{ width: "100%" }}
-                onClick={() => window.location.href = "/files/FInal Year Project.pdf"}
+                onClick={() => window.location.href = "/files/2021-22《足球竞赛规则》.pdf"}
               >
                 Download League Rules
               </Button>
