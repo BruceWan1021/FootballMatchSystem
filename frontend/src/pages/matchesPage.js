@@ -34,8 +34,8 @@ const MatchesPage = () => {
             date: match.matchDate?.split("T")[0] || "-",
             time: match.matchDate?.split("T")[1]?.slice(0, 5) || "-",
             status: convertedStatus,
-            score: match.status === "COMPLETED"|| "IN_PROGRESS" ? `${match.score1} - ${match.score2}` : "-",
-          };          
+            score: match.status === "COMPLETED" || "IN_PROGRESS" ? `${match.score1} - ${match.score2}` : "-",
+          };
         });
         setMatches(formatted);
         setFiltered(formatted);
@@ -124,9 +124,9 @@ const MatchesPage = () => {
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     📅 {match.date} ⏰ {match.time}
                   </Typography>
-                  {match.status === "COMPLETED" && (
+                  {(match.status === "COMPLETED" || match.status === "LIVE") && (
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Final Score: <strong>{match.score}</strong>
+                      {match.status === "COMPLETED" ? "Final Score:" : "Live Score:"} <strong>{match.score}</strong>
                     </Typography>
                   )}
                 </Paper>

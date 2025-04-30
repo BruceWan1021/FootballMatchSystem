@@ -31,4 +31,6 @@ public interface MatchService {
     Match updateMatch(Long matchId, MatchDTO matchDTO);
 
     MatchTeamInfo getMatchTeamInfo(Long matchId, Long teamId);
+    List<MatchDTO> getMatchesByPlayer(Long userId);
+
 }

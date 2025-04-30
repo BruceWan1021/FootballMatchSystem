@@ -25,24 +25,28 @@ const getEventIcon = (type) => {
 
 
 const MatchEvent = ({ match }) => {
-  const [events, setEvents] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMatchEvents = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
         const response = await fetch(`http://localhost:8080/api/matches/${match.id}/events`);
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch match events");
         }
 
         const data = await response.json();
-        console.log(match)
-        console.log(data)
-        setEvents(data); 
+        console.log(match);
+        console.log(data);
+
+        const filteredAndSorted = data
+          .filter(event => event.teamId === match.team1.id || event.team_id === match.team2.id)
+          .sort((a, b) => a.eventTime - b.eventTime);
+        setEvents(filteredAndSorted);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -51,18 +55,19 @@ const MatchEvent = ({ match }) => {
     };
 
     fetchMatchEvents();
-  }, [match.id]); 
+  }, [match.id]);
+
 
   if (loading) {
     return <Typography>Loading match events...</Typography>;
   }
 
   if (error) {
-    return <Typography>Error: {error}</Typography>; 
+    return <Typography>No events recorded.</Typography>;
   }
 
   if (!events || events.length === 0) {
-    return <Typography>No events recorded.</Typography>; 
+    return <Typography>No events recorded.</Typography>;
   }
 
   return (

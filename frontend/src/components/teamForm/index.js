@@ -150,7 +150,10 @@ const TeamForm = ({ team = null, onSuccess }) => {
 
       const data = await res.json();
       alert(`Team ${team ? "updated" : "created"} successfully!`);
-      onSuccess?.(data);
+      if (!team) {
+        window.location.href = "/my-organization"; 
+      } 
+        onSuccess?.(data);
     } catch (err) {
       console.error("Submit error:", err);
       alert("Submission failed");

@@ -1,8 +1,10 @@
 package com.footballmatchsystem.controller;
 
+import com.footballmatchsystem.dto.MatchDTO;
 import com.footballmatchsystem.dto.PlayerProfileDTO;
 import com.footballmatchsystem.dto.RefereeProfileDTO;
 import com.footballmatchsystem.dto.UserDTO;
+import com.footballmatchsystem.service.MatchService;
 import com.footballmatchsystem.service.PlayerProfileService;
 import com.footballmatchsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ public class ProfileController {
     private UserService userService;
     @Autowired
     private PlayerProfileService playerProfileService;
+    @Autowired
+    private MatchService matchService;
 
     public ProfileController(UserService userService) {
         this.userService = userService;
@@ -50,20 +54,6 @@ public class ProfileController {
         return ResponseEntity.ok(result); // 成功提示
     }
 
-    @PostMapping("/register/referee")
-    public ResponseEntity<?> registerAsReferee(
-            @RequestBody RefereeProfileDTO dto,
-            Authentication authentication) {
-
-        String username = authentication.getName();
-        String result = userService.registerRefereeProfile(username, dto);
-
-        if (result.contains("already")) {
-            return ResponseEntity.badRequest().body(result);
-        }
-
-        return ResponseEntity.ok(result);
-    }
 
     @GetMapping("/player/{teamId}")
     public ResponseEntity<List<PlayerProfileDTO>> getPlayersByTeam(
@@ -79,5 +69,15 @@ public class ProfileController {
         playerProfileService.updatePlayerProfile(userId, dto);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/player/{userId}/matches")
+    public ResponseEntity<List<MatchDTO>> getMatchesByPlayer(
+            @PathVariable Long userId,
+            Authentication authentication) {
+
+        List<MatchDTO> matches = matchService.getMatchesByPlayer(userId);
+        return ResponseEntity.ok(matches);
+    }
+
 
 }

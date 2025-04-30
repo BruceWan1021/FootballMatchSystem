@@ -12,6 +12,7 @@ const ProfilePage = () => {
 
   const [showPlayerForm, setShowPlayerForm] = useState(false);
   const [showRefereeForm, setShowRefereeForm] = useState(false);
+  const [matches, setMatches] = useState([]);
 
   const [formData, setFormData] = useState({
     position: "",
@@ -20,8 +21,6 @@ const ProfilePage = () => {
     weight: "",
     licenseNumber: "",
   });
-
-
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -42,6 +41,7 @@ const ProfilePage = () => {
         }
 
         const data = await response.json();
+        console.log(data)
         setProfile(data);
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -54,6 +54,29 @@ const ProfilePage = () => {
 
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    const fetchPlayerMatches = async () => {
+      if (!profile?.id || !profile.roles?.includes("PLAYER")) return;
+  
+      try {
+        const token = sessionStorage.getItem("authToken");
+        const res = await fetch(`http://localhost:8080/api/profile/player/${profile.id}/matches`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        if (!res.ok) throw new Error("Failed to fetch player matches");
+        const data = await res.json();
+        console.log(data)
+        setMatches(data);
+      } catch (err) {
+        console.error("Error loading player matches:", err);
+      }
+    };
+  
+    fetchPlayerMatches();
+  }, [profile]);
+  
 
 
   if (loading) {
@@ -150,7 +173,7 @@ const ProfilePage = () => {
                 ? "You are registered as a Player"
                 : !isPlayer && isReferee
                   ? "You are registered as a Referee"
-                  : "You are not yet registered as a Player or Referee"}
+                  : "You are not yet registered as a Player"}
             </Typography>
 
             <Stack direction="row" spacing={2}>
@@ -159,35 +182,21 @@ const ProfilePage = () => {
                   Become a Player
                 </Button>
               )}
-              {!isReferee && (
-                <Button variant="outlined" onClick={() => setShowRefereeForm(true)}>
-                  Become a Referee
-                </Button>
-              )}
+
             </Stack>
           </CardContent>
         </Card>
       )}
 
-      {(isPlayer || isReferee) && (
+      {(isPlayer) && (
         <>
           <Tabs value={tab} onChange={(e, val) => setTab(val)} sx={{ mb: 3 }}>
             {isPlayer && <Tab label="My Matches" />}
-            {isPlayer && <Tab label="My Stats" />}
             <Tab label="Settings" />
           </Tabs>
 
-          {isPlayer && tab === 0 && <MatchList matches={profile.matches || []} />}
-          {isPlayer && tab === 1 && (
-            <MyStats
-              stats={profile.stats}
-              skills={profile.skills}
-              honors={profile.honors}
-              ranking={profile.ranking}
-            />
-          )}
-
-          {(tab === 2 || (!isPlayer && tab === 0)) && (
+          {isPlayer && tab === 0 && <MatchList matches={matches} />}
+          {(tab === 1 || (!isPlayer && tab === 0)) && (
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>

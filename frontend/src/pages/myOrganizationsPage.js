@@ -299,13 +299,12 @@ const MyOrganizationsPage = () => {
                                 const teamCardData = {
                                     id: team.id,
                                     name: team.name,
-                                    startDate: "",
-                                    endDate: "",
+                                    school: team.school,
                                     department: team.homeGround,
                                     teams: team.playerCount || 0,
                                     gender: team.gender,
                                     status: team.status || "Active",
-                                    bannerUrl: team.logoUrl || `https://source.unsplash.com/random/400x180/?sports,team,${encodeURIComponent(team.name)}`
+                                    logoUrl: team.logoUrl || `https://source.unsplash.com/random/400x180/?sports,team,${encodeURIComponent(team.name)}`
                                 };
 
                                 return (

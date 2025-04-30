@@ -22,44 +22,69 @@ const TeamDetailPage = () => {
   };
 
   useEffect(() => {
-    const fetchTeam = async () => {
+    const fetchTeamDetail = async () => {
       try {
+        setLoading(true);
+        setError(null);
+  
+        const token = sessionStorage.getItem("authToken");
+  
+        // 1. 获取 team 基本信息
         const res = await fetch(`http://localhost:8080/api/teams/${id}`);
-        if (!res.ok) throw new Error('Failed to fetch team');
-        const data = await res.json();
-
+        if (!res.ok) throw new Error("Failed to fetch team");
+        const teamData = await res.json();
+  
+        // 2. 获取 stats
+        const statsRes = await fetch(`http://localhost:8080/api/teams/${id}/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!statsRes.ok) throw new Error("Failed to fetch team stats");
+        const stats = await statsRes.json();
+  
+        // 3. 获取 players
+        const playersRes = await fetch(`http://localhost:8080/api/profile/player/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!playersRes.ok) throw new Error("Failed to fetch players");
+        const players = await playersRes.json();
+        players.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+  
+        const matchesRes = await fetch(`http://localhost:8080/api/matches/teams/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!matchesRes.ok) throw new Error("Failed to fetch match history");
+        const upcomingMatches = await matchesRes.json();
+        console.log(upcomingMatches)
+  
         const enrichedTeam = {
-          ...data,
+          ...teamData,
           homeColors: {
-            jersey: data.homeJerseyColor,
-            shorts: data.homeShortsColor,
-            socks: data.homeSocksColor,
+            jersey: teamData.homeJerseyColor,
+            shorts: teamData.homeShortsColor,
+            socks: teamData.homeSocksColor,
           },
           awayColors: {
-            jersey: data.awayJerseyColor,
-            shorts: data.awayShortsColor,
-            socks: data.awaySocksColor,
+            jersey: teamData.awayJerseyColor,
+            shorts: teamData.awayShortsColor,
+            socks: teamData.awaySocksColor,
           },
-          stats: {
-            wins: 0,
-            draws: 0,
-            losses: 0,
-          },
-          players: [], // 可未来对接 /api/teams/{id}/players
-          upcomingMatches: [], // 可未来对接 /api/teams/{id}/matches
+          stats,
+          players,
+          upcomingMatches,
         };
-
+  
         setTeam(enrichedTeam);
       } catch (err) {
-        setError(err.message || 'Unknown error');
+        console.error(err);
+        setError(err.message || "加载球队信息失败");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchTeam();
+  
+    fetchTeamDetail();
   }, [id]);
-
+  
   if (loading) {
     return (
       <Box sx={{ textAlign: 'center', mt: 10 }}>
@@ -229,15 +254,6 @@ const TeamDetailPage = () => {
 
         {tabIndex === 1 && <SquadPlayersSection players={team.players || []} />}
         {tabIndex === 2 && <UpcomingMatchesSection matches={team.upcomingMatches || []} />}
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
-          <Button variant="outlined" color="secondary">
-            Share Team
-          </Button>
-          <Button variant="contained" color="primary">
-            Edit Team
-          </Button>
-        </Box>
       </Paper>
     </Box>
   );

@@ -6,17 +6,12 @@ import com.footballmatchsystem.mapper.MatchMapper;
 import com.footballmatchsystem.mapper.TeamMapper;
 import com.footballmatchsystem.mapper.TournamentMapper;
 import com.footballmatchsystem.model.*;
-import com.footballmatchsystem.repository.MatchRepository;
-import com.footballmatchsystem.repository.TeamRepository;
-import com.footballmatchsystem.repository.TournamentRepository;
-import com.footballmatchsystem.repository.MatchTeamInfoRepository;
+import com.footballmatchsystem.repository.*;
 import com.footballmatchsystem.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +20,9 @@ public class MatchServiceImpl implements MatchService {
     @Autowired
     private MatchRepository matchRepository;
     @Autowired
-    private TournamentRepository tournamentRepository;
-    @Autowired
-    private TeamRepository teamRepository;
-    @Autowired
     private MatchTeamInfoRepository matchTeamInfoRepository;
+    @Autowired
+    private UserTeamRoleRepository userTeamRoleRepository;
 
     @Override
     public List<Match> getMatchesByStatus(MatchStatus status){
@@ -135,4 +128,27 @@ public class MatchServiceImpl implements MatchService {
     public MatchTeamInfo getMatchTeamInfo(Long matchId, Long teamId) {
         return matchTeamInfoRepository.findByMatchIdAndTeamId(matchId, teamId);
     }
+
+    @Override
+    public List<MatchDTO> getMatchesByPlayer(Long userId) {
+        List<UserTeamRole> roles = userTeamRoleRepository.findByUserId(userId);
+        if (roles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Set<Long> teamIds = roles.stream()
+                .map(r -> r.getTeam().getId())
+                .collect(Collectors.toSet());
+
+        Set<Match> allMatches = new HashSet<>();
+        for (Long teamId : teamIds) {
+            List<Match> matches = matchRepository.findAllByTeamId(teamId);
+            allMatches.addAll(matches);
+        }
+
+        return allMatches.stream()
+                .map(MatchMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }

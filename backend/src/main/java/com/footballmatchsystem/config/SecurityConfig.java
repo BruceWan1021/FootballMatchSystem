@@ -42,7 +42,10 @@ public class SecurityConfig {
                                 "/api/auth/verify-email",
                                 "/api/matches/scheduled",
                                 "/api/matches/all",
-                                "/api/upload-logo"
+                                "/api/upload-logo",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/tournaments/**",

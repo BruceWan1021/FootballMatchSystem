@@ -18,7 +18,7 @@ const WelcomeSection = () => {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h3" fontWeight="bold" sx={{ mb: 4 }}>
-          Welcome to SoccerSphere!
+          Welcome to FootballZone!
         </Typography>
         <Typography variant="h6" sx={{ mb: 6 }}>
           Join the action, manage your team, and track your performance in exciting football leagues.

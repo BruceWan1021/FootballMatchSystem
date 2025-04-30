@@ -62,18 +62,44 @@ const MatchCard = ({ match }) => {
 
       <Box>
         {[match.teamA, match.teamB].map((team, idx) => (
-          <Box key={idx} sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
-            <Avatar sx={{
-              width: 28, height: 28, mr: 1,
-              bgcolor: idx === 0 ? 'primary.main' : 'secondary.main'
-            }}>
-              {team.charAt(0)}
-            </Avatar>
-            <Typography variant="body2" fontWeight={500} noWrap>{team}</Typography>
+          <Box
+            key={idx}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              my: 1
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                sx={{
+                  width: 28,
+                  height: 28,
+                  mr: 1,
+                  bgcolor: idx === 0 ? 'primary.main' : 'secondary.main'
+                }}
+              >
+                {team.charAt(0)}
+              </Avatar>
+              <Typography variant="body2" fontWeight={500} noWrap>
+                {team}
+              </Typography>
+            </Box>
+
+            {/* 显示比分 */}
+            {(match.status === 'IN_PROGRESS' || match.status === 'COMPLETED') && (
+              <Typography
+                variant="body2"
+                fontWeight="bold"
+                sx={{ ml: 1, minWidth: 24, textAlign: 'right' }}
+              >
+                {idx === 0 ? match.score1 : match.score2}
+              </Typography>
+            )}
           </Box>
         ))}
       </Box>
-
       <Box
         sx={{
           backgroundColor: 'grey.100',
@@ -89,6 +115,7 @@ const MatchCard = ({ match }) => {
         <Typography variant="caption" fontWeight="bold">{match.date}</Typography>
         <Typography variant="caption" fontWeight="bold">{match.time}</Typography>
       </Box>
+
     </Paper>
   );
 };
@@ -126,6 +153,8 @@ const UpcomingMatches = () => {
               minute: '2-digit',
               hour12: false
             }),
+            score1: match.score1,
+            score2: match.score2,
             status,
             displayStatus: displayStatusMap[status] || 'SCHEDULED'
           };
@@ -178,9 +207,6 @@ const UpcomingMatches = () => {
 
   return (
     <Box sx={{ position: 'relative', py: 2, px: 2 }}>
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-        Upcoming Matches
-      </Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={() => handleScroll('left')} disabled={scrollIndex === 0}>

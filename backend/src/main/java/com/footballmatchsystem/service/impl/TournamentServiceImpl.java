@@ -24,7 +24,7 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private TeamRepository teamRepository;
+    private UserTeamRoleRepository userTeamRoleRepository;
     @Autowired
     private TournamentParticipantRepository participantRepository;
     @Autowired
@@ -32,7 +32,7 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TournamentParticipantRepository tournamentParticipantRepository;
     @Autowired
-    private TeamServiceImpl teamService;
+    private MatchRepository matchRepository;
 
     @Transactional
     @Override
@@ -117,7 +117,11 @@ public class TournamentServiceImpl implements TournamentService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Team team = teamRepository.findByCaptainId(user.getId())
+        List<UserTeamRole> userTeamRoles = userTeamRoleRepository.findByUserId(user.getId());
+
+        Team team = userTeamRoles.stream()
+                .findFirst()
+                .map(UserTeamRole::getTeam)
                 .orElseThrow(() -> new RuntimeException("No team associated with this user"));
 
         TournamentParticipant.JoinStatus status = tournament.getRequiresApproval()
@@ -172,16 +176,25 @@ public class TournamentServiceImpl implements TournamentService {
         List<TournamentParticipant> participants = tournamentParticipantRepository.findByTournamentId(tournamentId);
 
         return participants.stream().map(participant -> {
-            TeamStatsDTO teamStats = teamService.getTeamStats(participant.getTeam().getId());
+            int matchesPlayed = matchRepository.countMatchesByTeamIdAndTournamentId(participant.getTeam().getId(), tournamentId);  // 获取比赛场次
+            int wins = matchRepository.countWinsByTeamIdAndTournamentId(participant.getTeam().getId(), tournamentId);  // 获取胜场数
+            int draws = matchRepository.countDrawsByTeamIdAndTournamentId(participant.getTeam().getId(), tournamentId);  // 获取平局场数
+            int losses = matchRepository.countLossesByTeamIdAndTournamentId(participant.getTeam().getId(), tournamentId);  // 获取负场数
+            int goalsFor = matchRepository.sumGoalsForByTeamIdAndTournamentId(participant.getTeam().getId(), tournamentId);  // 获取进球数
+            int goalsAgainst = matchRepository.sumGoalsAgainstByTeamIdAndTournamentId(participant.getTeam().getId(), tournamentId);  // 获取失球数
 
-            teamStats.setTeamId(participant.getTeam().getId());
-            teamStats.setTeamName(participant.getTeam().getName());
-            teamStats.setTeamLogo(participant.getTeam().getLogoUrl());
+            TeamStatsDTO stats = new TeamStatsDTO();
+            stats.setTeamId(participant.getTeam().getId());
+            stats.setTeamName(participant.getTeam().getName());
+            stats.setMatchesPlayed(matchesPlayed);
+            stats.setWins(wins);
+            stats.setDraws(draws);
+            stats.setLosses(losses);
+            stats.setGoalsFor(goalsFor);
+            stats.setGoalsAgainst(goalsAgainst);
+            stats.setPoints(wins*3+draws);
 
-            int points = teamStats.getWins() * 3 + teamStats.getDraws() * 1;
-            teamStats.setPoints(points);
-
-            return teamStats;
+            return stats;
         }).collect(Collectors.toList());
     }
 

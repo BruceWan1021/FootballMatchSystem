@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 
 const TeamCard = ({ team, onViewDetails }) => {
+  console.log(team);
   return (
     <Card>
       <CardMedia

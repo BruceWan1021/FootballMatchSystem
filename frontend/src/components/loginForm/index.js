@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Container, Paper, Typography, TextField, Button, Box } from "@mui/material";
+import Link from '@mui/material/Link';
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import { useNavigate } from 'react-router-dom';
 
@@ -21,17 +22,17 @@ const LoginForm = () => {
       });
       const result = await response.json();
       if (response.ok) {
-        const token  = result.token;
+        const token = result.token;
 
         sessionStorage.setItem('authToken', token);
-        alert("Login Successful" );
+        alert("Login Successful");
         navigate('/');
         setTimeout(() => {
           window.location.reload();
         }, 100);
-    } else {
+      } else {
         alert("登录失败：" + result);
-    }
+      }
     } catch (error) {
       console.error("请求失败:", error);
       alert("网络错误，请稍后重试！");
@@ -43,7 +44,7 @@ const LoginForm = () => {
       <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <SportsSoccerIcon sx={{ fontSize: 50, color: 'green', mb: 2 }} />
         <Typography component="h1" variant="h5" sx={{ fontWeight: 'bold', color: 'green' }}>
-        SoccerSphere - Login
+          SoccerSphere - Login
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <TextField
@@ -74,6 +75,12 @@ const LoginForm = () => {
             Login
           </Button>
         </Box>
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Don't have an accouny？{' '}
+          <Link href="/register" sx={{ color: 'green', fontWeight: 'bold' }}>
+            Click here to register
+          </Link>
+        </Typography>
       </Paper>
     </Container>
   );

@@ -141,7 +141,7 @@ const CreateLeaguePage = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch("http://localhost:8080/api/upload-rules", {
+        const res = await fetch("http://localhost:8080/api/upload-logo", {
           method: "POST",
           body: formData,
         });
@@ -225,6 +225,7 @@ const CreateLeaguePage = () => {
       const result = await response.json();
       alert("League created successfully!");
       console.log("Created league:", result);
+      window.location.href = "/my-organization"; 
     } catch (error) {
       console.error("League creation error:", error);
       alert("Failed to create league. Please check console for details.");

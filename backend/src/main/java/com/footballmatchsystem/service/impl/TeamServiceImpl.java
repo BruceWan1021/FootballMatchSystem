@@ -31,6 +31,8 @@ public class TeamServiceImpl implements TeamService {
     private UserTeamRoleRepository userTeamRoleRepository;
     @Autowired
     private MatchRepository matchRepository;
+    @Autowired
+    private UserTeamRoleServiceImpl userTeamRoleService;
 
     @Override
     @Transactional
@@ -52,6 +54,7 @@ public class TeamServiceImpl implements TeamService {
         }
 
         Team saved = teamRepository.save(team);
+        userTeamRoleService.addUserToTeam(user.getId(), team.getId(), String.valueOf(UserTeamRole.TeamRole.MANAGER));
         return TeamMapper.toDTO(saved);
     }
 
@@ -134,7 +137,7 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<UserTeamRole> userTeamRoles = userTeamRoleRepository.findByUserId(user.getId());
-
+        userTeamRoles.removeIf(role -> role.getRole() == UserTeamRole.TeamRole.PLAYER);
         return userTeamRoles.stream()
                 .map(UserTeamRole::getTeam)      // 提取 Team
                 .distinct()                      // 防止重复
